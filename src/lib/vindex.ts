@@ -22,11 +22,50 @@ export interface IndexManifest {
 }
 
 export class VectorIndex {
+  /** int8-quantized vectors: 4x less memory traffic than f32 for the scan */
+  private readonly q8: Int8Array;
+  /** per-vector dequantization scale (maxAbs / 127) */
+  private readonly scales: Float32Array;
+
+  public readonly meta: ChunkMeta[];
+  /** contiguous [start, end) row range per strategy after physical reorder */
+  private readonly partitions: Map<string, [number, number]>;
+
+  // the f32 source is quantized then released — only q8 + scales are retained,
+  // which also cuts resident memory ~4x (matters on small deploy instances).
+  // Rows are physically reordered so each strategy occupies a contiguous
+  // range, letting search scan a strategy subset with zero per-row branching.
   private constructor(
-    public readonly vectors: Float32Array,
-    public readonly meta: ChunkMeta[],
+    vectors: Float32Array,
+    meta: ChunkMeta[],
     public readonly manifest: IndexManifest,
-  ) {}
+  ) {
+    const { count, dim } = manifest;
+    const order = Array.from({ length: count }, (_, i) => i).sort((a, b) =>
+      meta[a].strategy < meta[b].strategy ? -1 : meta[a].strategy > meta[b].strategy ? 1 : a - b,
+    );
+    this.meta = order.map((i) => meta[i]);
+    this.q8 = new Int8Array(count * dim);
+    this.scales = new Float32Array(count);
+    this.partitions = new Map();
+    for (let r = 0; r < count; r++) {
+      const src = order[r] * dim;
+      const dst = r * dim;
+      let maxAbs = 1e-12;
+      for (let d = 0; d < dim; d++) {
+        const a = Math.abs(vectors[src + d]);
+        if (a > maxAbs) maxAbs = a;
+      }
+      const s = maxAbs / 127;
+      this.scales[r] = s;
+      const inv = 1 / s;
+      for (let d = 0; d < dim; d++) this.q8[dst + d] = Math.round(vectors[src + d] * inv);
+      const strat = this.meta[r].strategy;
+      const range = this.partitions.get(strat);
+      if (range) range[1] = r + 1;
+      else this.partitions.set(strat, [r, r + 1]);
+    }
+  }
 
   get dim(): number {
     return this.manifest.dim;
@@ -82,24 +121,39 @@ export class VectorIndex {
    * Exact top-k by dot product. `filter` optionally restricts by strategy.
    * Parent-strategy children are deduped to their parent, keeping best score.
    */
-  search(query: Float32Array, k: number, filter?: (m: ChunkMeta) => boolean): RetrievedChunk[] {
-    const { vectors, meta } = this;
+  /**
+   * Exact top-k by (quantized) dot product. `strategies` restricts the scan to
+   * those partitions; omit to scan everything. Results are deduped to distinct
+   * source passages.
+   */
+  search(query: Float32Array, k: number, strategies?: string[]): RetrievedChunk[] {
+    const { q8, scales, meta } = this;
     const dim = this.dim;
-    const n = meta.length;
+    // resolve scan ranges: whole index, or the requested strategy partitions
+    const ranges: [number, number][] = [];
+    if (strategies?.length) {
+      for (const s of strategies) {
+        const r = this.partitions.get(s);
+        if (r) ranges.push(r);
+      }
+      if (!ranges.length) return [];
+    } else {
+      ranges.push([0, meta.length]);
+    }
     // top-k via a small insertion buffer — k is tiny (<=20)
     const topIdx = new Int32Array(k).fill(-1);
     const topScore = new Float32Array(k).fill(-Infinity);
-    for (let i = 0; i < n; i++) {
-      if (filter && !filter(meta[i])) continue;
+    for (const [lo, hi] of ranges)
+    for (let i = lo; i < hi; i++) {
       const off = i * dim;
       let d0 = 0, d1 = 0, d2 = 0, d3 = 0;
       for (let d = 0; d < dim; d += 4) {
-        d0 += vectors[off + d] * query[d];
-        d1 += vectors[off + d + 1] * query[d + 1];
-        d2 += vectors[off + d + 2] * query[d + 2];
-        d3 += vectors[off + d + 3] * query[d + 3];
+        d0 += q8[off + d] * query[d];
+        d1 += q8[off + d + 1] * query[d + 1];
+        d2 += q8[off + d + 2] * query[d + 2];
+        d3 += q8[off + d + 3] * query[d + 3];
       }
-      const dot = d0 + d1 + d2 + d3;
+      const dot = (d0 + d1 + d2 + d3) * scales[i];
       if (dot <= topScore[k - 1]) continue;
       // insert
       let j = k - 1;

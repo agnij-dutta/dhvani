@@ -10,6 +10,7 @@ import { getIndex, type IndexManifest } from "@/lib/vindex";
 import { sarvamConfigured } from "@/server/sarvam";
 import { geminiConfigured, groqConfigured, GROQ_MODEL, GEMINI_MODEL } from "@/server/generate";
 import { OFF_TOPIC_THRESHOLD, GROUNDING_THRESHOLD } from "@/server/guardrails";
+import { ensureKeepWarm } from "@/server/keepwarm";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ function embedderState(): { status: WarmState; error?: string } {
 }
 
 export async function GET(): Promise<Response> {
+  ensureKeepWarm();
   const embedder = embedderState();
 
   let index:

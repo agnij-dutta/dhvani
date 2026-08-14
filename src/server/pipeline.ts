@@ -30,6 +30,7 @@ import {
   UNGROUNDED_MESSAGE,
 } from "./guardrails";
 import { appendRecord } from "./analytics";
+import { ensureKeepWarm } from "./keepwarm";
 
 export const DEFAULT_K = 8;
 
@@ -110,6 +111,7 @@ export async function runPipeline(
   opts: PipelineOptions = {},
 ): Promise<PipelineResult> {
   const k = opts.k ?? DEFAULT_K;
+  ensureKeepWarm();
   const timings = emptyTimings();
   const errors: string[] = [];
   const t0 = performance.now();
@@ -225,7 +227,14 @@ export async function runPipeline(
     const done = stage("retrieve");
     try {
       const index = await loadIndex();
-      chunks = index.search(qvec, k);
+      // scan only the configured strategy partitions — on MS MARCO the eval
+      // showed no recall gain from adding `parent` to `sentence`, and the
+      // smaller scan keeps retrieveMs well inside the latency budget
+      const strategies = (process.env.RETRIEVE_STRATEGIES ?? "sentence")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      chunks = index.search(qvec, k, strategies);
       timings.retrieveMs = done();
     } catch (e) {
       timings.retrieveMs = done();
@@ -256,9 +265,11 @@ export async function runPipeline(
   {
     const done = stage("generate");
     try {
+      // top-4 only: fewer prompt tokens means faster prompt processing (lower
+      // TTFT) and a smaller rate-limit footprint; the UI still shows all k
       const result = await generateAnswer(
         question,
-        chunks,
+        chunks.slice(0, 4),
         (t) => safeEmit({ type: "token", text: t }),
         opts.signal,
       );
