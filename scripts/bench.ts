@@ -60,10 +60,12 @@ interface Args {
   n: number;
   gen: boolean;
   k: number;
+  /** inter-query pause when generation is on (rate-limit pacing) */
+  delayMs: number;
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { n: 100, gen: true, k: 8 };
+  const args: Args = { n: 100, gen: true, k: 8, delayMs: 2500 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--n" || a === "-n") args.n = Number(argv[++i]) || args.n;
@@ -71,6 +73,8 @@ function parseArgs(argv: string[]): Args {
     else if (a === "--no-gen") args.gen = false;
     else if (a === "--k") args.k = Number(argv[++i]) || args.k;
     else if (a.startsWith("--k=")) args.k = Number(a.slice(4)) || args.k;
+    else if (a === "--delay") args.delayMs = Number(argv[++i]) || args.delayMs;
+    else if (a.startsWith("--delay=")) args.delayMs = Number(a.slice(8)) || args.delayMs;
   }
   return args;
 }
@@ -185,6 +189,11 @@ async function main(): Promise<void> {
     }
     if ((i + 1) % 10 === 0 || i === queries.length - 1) {
       process.stdout.write(`\r  ${i + 1}/${queries.length} queries`);
+    }
+    // pace requests when generation is on — free-tier Groq queues bursts,
+    // which would bench the rate limiter instead of the pipeline
+    if (generate && i < queries.length - 1) {
+      await new Promise((r) => setTimeout(r, args.delayMs));
     }
   }
   console.log("");

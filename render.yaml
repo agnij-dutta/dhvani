@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: dhvani
+    runtime: node
+    plan: starter # 512MB free tier is too tight for the 97MB index + ONNX embedder
+    # --include=dev: Render sets NODE_ENV=production, which would strip tsx/typescript
+    buildCommand: npm ci --include=dev && npx tsx scripts/prefetch_model.ts && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: INDEX_DIR
+        value: data/index
+      - key: HF_CACHE_DIR
+        value: ./.hf-cache
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=1536

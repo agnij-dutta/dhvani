@@ -1,0 +1,17 @@
+# Pings the Render deployment every 10 minutes so the instance never idles
+# into a cold start (which would cost an index load + embedder warmup).
+# Set the DHVANI_URL repository variable to the Render URL once deployed.
+name: keepalive
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping /api/health
+        run: |
+          URL="${{ vars.DHVANI_URL }}"
+          if [ -z "$URL" ]; then echo "DHVANI_URL repo variable not set; skipping"; exit 0; fi
+          curl -sf --max-time 30 "$URL/api/health" | head -c 300

@@ -1,0 +1,10 @@
+{
+  "count": 62872,
+  "dim": 384,
+  "model": "Xenova/multilingual-e5-small",
+  "builtAt": "2026-08-14T11:32:11.025Z",
+  "strategies": {
+    "sentence": 25507,
+    "parent": 37365
+  }
+}
