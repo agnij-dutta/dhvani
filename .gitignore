@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-data/
+# keep small result/eval artifacts, ignore the heavy corpus/index
+data/corpus.jsonl
+data/index/
+data/analytics.jsonl
 .hf-cache/
 .env.local

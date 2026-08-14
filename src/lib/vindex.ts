@@ -47,7 +47,10 @@ export class VectorIndex {
         `index corrupt: manifest=${manifest.count}, meta=${meta.length}, vecs=${vectors.length / manifest.dim}`,
       );
     }
-    return new VectorIndex(vectors, meta, manifest);
+    const idx = new VectorIndex(vectors, meta, manifest);
+    // page the mmap'd buffer into memory so the first real query doesn't pay it
+    idx.search(new Float32Array(manifest.dim), 1);
+    return idx;
   }
 
   static async save(
@@ -88,9 +91,15 @@ export class VectorIndex {
     const topScore = new Float32Array(k).fill(-Infinity);
     for (let i = 0; i < n; i++) {
       if (filter && !filter(meta[i])) continue;
-      let dot = 0;
       const off = i * dim;
-      for (let d = 0; d < dim; d++) dot += vectors[off + d] * query[d];
+      let d0 = 0, d1 = 0, d2 = 0, d3 = 0;
+      for (let d = 0; d < dim; d += 4) {
+        d0 += vectors[off + d] * query[d];
+        d1 += vectors[off + d + 1] * query[d + 1];
+        d2 += vectors[off + d + 2] * query[d + 2];
+        d3 += vectors[off + d + 3] * query[d + 3];
+      }
+      const dot = d0 + d1 + d2 + d3;
       if (dot <= topScore[k - 1]) continue;
       // insert
       let j = k - 1;
@@ -108,7 +117,9 @@ export class VectorIndex {
       const i = topIdx[j];
       if (i < 0) break;
       const m = meta[i];
-      const dedupeKey = m.parentId ?? m.id;
+      // dedupe by source passage so sentence- and parent-strategy chunks of
+      // the same passage don't occupy multiple k slots
+      const dedupeKey = `${m.queryId}:${m.passageIdx}`;
       if (seenParents.has(dedupeKey)) continue;
       seenParents.add(dedupeKey);
       out.push({ ...m, score: topScore[j] });
@@ -121,6 +132,12 @@ export class VectorIndex {
 const globalStore = globalThis as unknown as { __dhvaniIndex?: Promise<VectorIndex> };
 
 export function getIndex(dir = process.env.INDEX_DIR ?? "data/index"): Promise<VectorIndex> {
-  if (!globalStore.__dhvaniIndex) globalStore.__dhvaniIndex = VectorIndex.load(dir);
+  if (!globalStore.__dhvaniIndex) {
+    globalStore.__dhvaniIndex = VectorIndex.load(dir).catch((err) => {
+      // don't memoize failures — the index may simply not be built yet
+      globalStore.__dhvaniIndex = undefined;
+      throw err;
+    });
+  }
   return globalStore.__dhvaniIndex;
 }
