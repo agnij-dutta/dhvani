@@ -54,7 +54,12 @@ async function main() {
         body: JSON.stringify({ text: picked[i] }),
       });
       // drain the SSE stream fully so the server finishes and records timings
-      if (res.body) for await (const _ of res.body) void _;
+      if (res.body) {
+        const reader = res.body.getReader();
+        while (!(await reader.read()).done) {
+          /* drain */
+        }
+      }
       if (res.ok) ok++;
       else failed++;
     } catch {
