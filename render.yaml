@@ -18,6 +18,8 @@ services:
         sync: false
       - key: RETRIEVE_STRATEGIES
         value: sentence
+      - key: OFF_TOPIC_THRESHOLD
+        value: "0.55" # MiniLM scale: on-topic ~0.64-0.83, off-topic ~0.38-0.51 (e5 default is 0.80)
       - key: EMBED_MODEL
         value: Xenova/all-MiniLM-L6-v2
       - key: INDEX_DIR
