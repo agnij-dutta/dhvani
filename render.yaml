@@ -2,7 +2,7 @@ services:
   - type: web
     name: dhvani
     runtime: node
-    plan: starter # 512MB free tier is too tight for the 97MB index + ONNX embedder
+    plan: free # slim q8 index (9.3MB) + q8 ONNX embedder fit the 512MB instance
     # --include=dev: Render sets NODE_ENV=production, which would strip tsx/typescript
     buildCommand: npm ci --include=dev && npx tsx scripts/prefetch_model.ts && npm run build
     startCommand: npm start
@@ -19,8 +19,8 @@ services:
       - key: RETRIEVE_STRATEGIES
         value: sentence
       - key: INDEX_DIR
-        value: data/index
+        value: data/index-slim
       - key: HF_CACHE_DIR
         value: ./.hf-cache
       - key: NODE_OPTIONS
-        value: --max-old-space-size=1536
+        value: --max-old-space-size=460

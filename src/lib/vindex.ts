@@ -27,27 +27,38 @@ export class VectorIndex {
   /** per-vector dequantization scale (maxAbs / 127) */
   private readonly scales: Float32Array;
 
-  public readonly meta: ChunkMeta[];
-  /** contiguous [start, end) row range per strategy after physical reorder */
+  /** contiguous [start, end) row range per strategy (rows are strategy-sorted) */
   private readonly partitions: Map<string, [number, number]>;
 
-  // the f32 source is quantized then released — only q8 + scales are retained,
-  // which also cuts resident memory ~4x (matters on small deploy instances).
-  // Rows are physically reordered so each strategy occupies a contiguous
-  // range, letting search scan a strategy subset with zero per-row branching.
   private constructor(
-    vectors: Float32Array,
-    meta: ChunkMeta[],
+    q8: Int8Array,
+    scales: Float32Array,
+    public readonly meta: ChunkMeta[],
     public readonly manifest: IndexManifest,
   ) {
+    this.q8 = q8;
+    this.scales = scales;
+    this.partitions = new Map();
+    for (let r = 0; r < meta.length; r++) {
+      const strat = meta[r].strategy;
+      const range = this.partitions.get(strat);
+      if (range) range[1] = r + 1;
+      else this.partitions.set(strat, [r, r + 1]);
+    }
+  }
+
+  // The f32 source is quantized then released — only q8 + scales are retained,
+  // which cuts resident memory ~4x (matters on small deploy instances).
+  // Rows are physically reordered so each strategy occupies a contiguous
+  // range, letting search scan a strategy subset with zero per-row branching.
+  static fromF32(vectors: Float32Array, meta: ChunkMeta[], manifest: IndexManifest): VectorIndex {
     const { count, dim } = manifest;
     const order = Array.from({ length: count }, (_, i) => i).sort((a, b) =>
       meta[a].strategy < meta[b].strategy ? -1 : meta[a].strategy > meta[b].strategy ? 1 : a - b,
     );
-    this.meta = order.map((i) => meta[i]);
-    this.q8 = new Int8Array(count * dim);
-    this.scales = new Float32Array(count);
-    this.partitions = new Map();
+    const sortedMeta = order.map((i) => meta[i]);
+    const q8 = new Int8Array(count * dim);
+    const scales = new Float32Array(count);
     for (let r = 0; r < count; r++) {
       const src = order[r] * dim;
       const dst = r * dim;
@@ -57,14 +68,11 @@ export class VectorIndex {
         if (a > maxAbs) maxAbs = a;
       }
       const s = maxAbs / 127;
-      this.scales[r] = s;
+      scales[r] = s;
       const inv = 1 / s;
-      for (let d = 0; d < dim; d++) this.q8[dst + d] = Math.round(vectors[src + d] * inv);
-      const strat = this.meta[r].strategy;
-      const range = this.partitions.get(strat);
-      if (range) range[1] = r + 1;
-      else this.partitions.set(strat, [r, r + 1]);
+      for (let d = 0; d < dim; d++) q8[dst + d] = Math.round(vectors[src + d] * inv);
     }
+    return new VectorIndex(q8, scales, sortedMeta, manifest);
   }
 
   get dim(): number {
@@ -75,21 +83,61 @@ export class VectorIndex {
     const manifest: IndexManifest = JSON.parse(
       await fs.readFile(path.join(dir, "manifest.json"), "utf8"),
     );
-    const buf = await fs.readFile(path.join(dir, "vectors.f32"));
-    const vectors = new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4);
     const meta: ChunkMeta[] = (await fs.readFile(path.join(dir, "meta.jsonl"), "utf8"))
       .split("\n")
       .filter(Boolean)
       .map((l) => JSON.parse(l));
-    if (meta.length !== manifest.count || vectors.length !== manifest.count * manifest.dim) {
-      throw new Error(
-        `index corrupt: manifest=${manifest.count}, meta=${meta.length}, vecs=${vectors.length / manifest.dim}`,
-      );
+    if (meta.length !== manifest.count) {
+      throw new Error(`index corrupt: manifest=${manifest.count}, meta=${meta.length}`);
     }
-    const idx = new VectorIndex(vectors, meta, manifest);
-    // page the mmap'd buffer into memory so the first real query doesn't pay it
+
+    let idx: VectorIndex;
+    const q8Path = path.join(dir, "vectors.q8");
+    if (await fs.stat(q8Path).then(() => true, () => false)) {
+      // pre-quantized format: no f32 memory spike at load — rows are already
+      // strategy-sorted (written by saveQuantized)
+      const q8buf = await fs.readFile(q8Path);
+      const sbuf = await fs.readFile(path.join(dir, "scales.f32"));
+      const q8 = new Int8Array(q8buf.buffer, q8buf.byteOffset, q8buf.byteLength);
+      const scales = new Float32Array(sbuf.buffer, sbuf.byteOffset, sbuf.byteLength / 4);
+      if (q8.length !== manifest.count * manifest.dim || scales.length !== manifest.count) {
+        throw new Error(`index corrupt: q8=${q8.length}, scales=${scales.length}`);
+      }
+      idx = new VectorIndex(q8, scales, meta, manifest);
+    } else {
+      const buf = await fs.readFile(path.join(dir, "vectors.f32"));
+      const vectors = new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4);
+      if (vectors.length !== manifest.count * manifest.dim) {
+        throw new Error(`index corrupt: vecs=${vectors.length / manifest.dim}`);
+      }
+      idx = VectorIndex.fromF32(vectors, meta, manifest);
+    }
+    // page the buffers in so the first real query doesn't pay it
     idx.search(new Float32Array(manifest.dim), 1);
     return idx;
+  }
+
+  /** Write the compact pre-quantized format (rows must be strategy-sorted). */
+  static async saveQuantized(
+    dir: string,
+    q8: Int8Array,
+    scales: Float32Array,
+    meta: ChunkMeta[],
+    manifest: IndexManifest,
+  ): Promise<void> {
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, "vectors.q8"), Buffer.from(q8.buffer, q8.byteOffset, q8.byteLength));
+    await fs.writeFile(
+      path.join(dir, "scales.f32"),
+      Buffer.from(scales.buffer, scales.byteOffset, scales.byteLength),
+    );
+    await fs.writeFile(path.join(dir, "meta.jsonl"), meta.map((m) => JSON.stringify(m)).join("\n"));
+    await fs.writeFile(path.join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  }
+
+  /** internal buffers, exposed for the index converter script */
+  get quantized(): { q8: Int8Array; scales: Float32Array } {
+    return { q8: this.q8, scales: this.scales };
   }
 
   static async save(
