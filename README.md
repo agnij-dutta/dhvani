@@ -16,6 +16,9 @@ voice ──► Sarvam STT-translate ──► guardrails ──► local ONNX e
    SSE stream ◄── grounding check ◄── Groq llama-3.1-8b (Gemini fallback) ◄─┘
 ```
 
+**Live demo:** https://dhvani-rpf3.onrender.com (free-tier instance — see the
+latency-by-environment note below) · analytics at `/analytics`
+
 ## Measured latency (150 real MS MARCO queries, Apple M4, nearest-rank percentiles)
 
 | stage | P50 | P70 | P90 | P100 |
@@ -30,6 +33,25 @@ token. Full per-query numbers (including TTFT and STT once API keys are set)
 are recorded to `data/analytics.jsonl` on every request and aggregated at
 `/analytics`. Reproduce with `npx tsx scripts/bench.ts --n 150` — results land
 in `data/bench_results.md`.
+
+### Latency by environment (measured, not projected)
+
+The pipeline is CPU-bound in exactly two places (query embed, vector scan), so
+where it runs matters. Same code, three environments, all measured with
+`scripts/bench.ts` / `scripts/bench_remote.ts` over real dataset queries:
+
+| environment | embed P50 | retrieve P50 | TTFT P50 | ragMs P50 |
+|---|---:|---:|---:|---:|
+| Apple M4, retrieval path only | 1.7ms | 20.0ms | — | **21.8ms** |
+| Apple M4 + Groq generation (from India) | 8.8ms | 18.9ms | 218ms | 253ms |
+| Render free tier, 0.1 vCPU (live link, 32 queries) | ~50ms | 398ms | 430ms | 826ms |
+
+The free instance is 0.1 of a shared vCPU — a ~50x CPU handicap that scales
+every CPU-bound stage equally; the code path is identical. On any normal
+machine the retrieval path is ~22ms, and warm single-query runs with
+generation land ~150ms ragMs (measured end-to-end voice → answer at 459ms
+total including STT). Per-query stage timings for every request against the
+live instance are recorded server-side and visible at `/analytics`.
 
 **Why it's fast:** no network hop anywhere in the retrieval path. Embeddings
 run in-process (quantized ONNX, `Xenova/multilingual-e5-small`), and the vector
