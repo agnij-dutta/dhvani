@@ -1,0 +1,9 @@
+{
+  "count": 25507,
+  "dim": 384,
+  "model": "Xenova/all-MiniLM-L6-v2",
+  "builtAt": "2026-08-15T12:50:51.560Z",
+  "strategies": {
+    "sentence": 25507
+  }
+}

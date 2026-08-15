@@ -36,7 +36,7 @@ async function main() {
   for (const line of raw.split("\n")) {
     if (!line.trim()) continue;
     const q = JSON.parse(line);
-    if (typeof q.Eng_Query === "string" && q.Eng_Query.trim()) queries.push(q.Eng_Query.trim());
+    if (typeof q.query === "string" && q.query.trim()) queries.push(q.query.trim());
   }
   const picked = queries.slice(0, args.n);
   console.log(`remote bench: ${picked.length} queries → ${base}/api/ask (pacing ${args.delayMs}ms)`);

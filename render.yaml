@@ -18,9 +18,11 @@ services:
         sync: false
       - key: RETRIEVE_STRATEGIES
         value: sentence
+      - key: EMBED_MODEL
+        value: Xenova/all-MiniLM-L6-v2
       - key: INDEX_DIR
-        value: data/index-slim
+        value: data/index-mini
       - key: HF_CACHE_DIR
         value: ./.hf-cache
       - key: NODE_OPTIONS
-        value: --max-old-space-size=460
+        value: --max-old-space-size=300

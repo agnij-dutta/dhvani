@@ -83,10 +83,25 @@ export class VectorIndex {
     const manifest: IndexManifest = JSON.parse(
       await fs.readFile(path.join(dir, "manifest.json"), "utf8"),
     );
+    // intern the highly-repeated string fields — JSON.parse allocates a fresh
+    // string per row, wasting tens of MB across 25k+ rows
+    const pool = new Map<string, string>();
+    const intern = (s: string) => {
+      const hit = pool.get(s);
+      if (hit) return hit;
+      pool.set(s, s);
+      return s;
+    };
     const meta: ChunkMeta[] = (await fs.readFile(path.join(dir, "meta.jsonl"), "utf8"))
       .split("\n")
       .filter(Boolean)
-      .map((l) => JSON.parse(l));
+      .map((l) => {
+        const m: ChunkMeta = JSON.parse(l);
+        m.strategy = intern(m.strategy) as ChunkMeta["strategy"];
+        m.queryType = intern(m.queryType);
+        m.langPair = intern(m.langPair);
+        return m;
+      });
     if (meta.length !== manifest.count) {
       throw new Error(`index corrupt: manifest=${manifest.count}, meta=${meta.length}`);
     }

@@ -7,13 +7,24 @@ import { pipeline, env, type FeatureExtractionPipeline } from "@huggingface/tran
 env.cacheDir = process.env.HF_CACHE_DIR ?? "./.hf-cache";
 
 export const EMBED_DIM = 384;
-const MODEL_ID = "Xenova/multilingual-e5-small";
+// Default is multilingual (Indic text queries work directly). Deployments on
+// small instances set EMBED_MODEL=Xenova/all-MiniLM-L6-v2 (~10x smaller RSS,
+// English-only) — safe because Sarvam STT-translate normalizes voice queries
+// to English before retrieval. Both models are 384-dim.
+const MODEL_ID = process.env.EMBED_MODEL ?? "Xenova/multilingual-e5-small";
+// E5-family models require "query: "/"passage: " prefixes; others don't.
+const USE_E5_PREFIXES = MODEL_ID.includes("e5");
 
 let extractor: Promise<FeatureExtractionPipeline> | null = null;
 
 function getExtractor(): Promise<FeatureExtractionPipeline> {
   if (!extractor) {
-    extractor = pipeline("feature-extraction", MODEL_ID, { dtype: "q8" });
+    // arena/mem-pattern off: ~150MB less resident memory for ~1.5ms per embed —
+    // the right trade on small deploy instances
+    extractor = pipeline("feature-extraction", MODEL_ID, {
+      dtype: "q8",
+      session_options: { enableCpuMemArena: false, enableMemPattern: false },
+    } as Parameters<typeof pipeline>[2]);
   }
   return extractor;
 }
@@ -34,10 +45,10 @@ async function embed(texts: string[]): Promise<Float32Array[]> {
 }
 
 export async function embedQuery(text: string): Promise<Float32Array> {
-  const [v] = await embed([`query: ${text}`]);
+  const [v] = await embed([USE_E5_PREFIXES ? `query: ${text}` : text]);
   return v;
 }
 
 export async function embedPassages(texts: string[]): Promise<Float32Array[]> {
-  return embed(texts.map((t) => `passage: ${t}`));
+  return embed(USE_E5_PREFIXES ? texts.map((t) => `passage: ${t}`) : texts);
 }
