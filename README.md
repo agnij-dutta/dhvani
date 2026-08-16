@@ -44,7 +44,7 @@ where it runs matters. Same code, three environments, all measured with
 |---|---:|---:|---:|---:|
 | Apple M4, retrieval path only | 1.7ms | 20.0ms | — | **21.8ms** |
 | Apple M4 + Groq generation (from India) | 8.8ms | 18.9ms | 218ms | 253ms |
-| Render free tier, 0.1 vCPU (live link, 32 queries) | ~50ms | 398ms | 430ms | 826ms |
+| Render free tier, 0.1 vCPU (live link) | ~100ms | **2.8ms** (IVF) | ~300-410ms | ~400-620ms |
 
 The free instance is 0.1 of a shared vCPU — a ~50x CPU handicap that scales
 every CPU-bound stage equally; the code path is identical. On any normal
@@ -56,8 +56,10 @@ live instance are recorded server-side and visible at `/analytics`.
 **Why it's fast:** no network hop anywhere in the retrieval path. Embeddings
 run in-process (quantized ONNX, `Xenova/multilingual-e5-small`), and the vector
 index is a flat `Float32Array` scanned with an unrolled exact dot product —
-brute force over 62k×384 dims beats any external vector DB round-trip at this
-corpus size, and it's exact, not approximate.
+the flat scan is exact brute force, and an optional IVF layer (192 k-means
+centroids, nprobe 24, ~90 lines of TS in `scripts/build_ivf.ts`) cuts search
+another 14x (9.7ms → 0.7ms on M4; 708ms → 2.8ms on a 0.1-vCPU instance) at a
+cost of 2 points of R@5 — both paths ship, the loader picks IVF when present.
 
 ## Chunking: five strategies, honestly evaluated
 
