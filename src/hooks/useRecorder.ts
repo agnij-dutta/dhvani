@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { blobToWav } from "@/lib/wav";
 
 export type RecorderState =
   | "idle"
@@ -214,7 +215,14 @@ export function useRecorder(): UseRecorder {
     chunksRef.current = [];
 
     if (blob.size < 512 || durationMs < 350) return null;
-    return { blob, mimeType: mimeRef.current, durationMs };
+    // Sarvam rejects webm/ogg containers — convert to 16kHz mono WAV in-browser
+    try {
+      const wav = await blobToWav(blob);
+      return { blob: wav, mimeType: "audio/wav", durationMs };
+    } catch {
+      // decode failed (rare) — send the original and let the server report
+      return { blob, mimeType: mimeRef.current, durationMs };
+    }
   }, [teardown]);
 
   const cancel = useCallback(() => {
