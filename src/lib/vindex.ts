@@ -29,6 +29,8 @@ export class VectorIndex {
 
   /** contiguous [start, end) row range per strategy (rows are strategy-sorted) */
   private readonly partitions: Map<string, [number, number]>;
+  /** optional IVF layer: centroids + per-cluster row lists (see scripts/build_ivf.ts) */
+  private ivf?: { centroids: Float32Array; k: number; nprobe: number; lists: Int32Array[] };
 
   private constructor(
     q8: Int8Array,
@@ -127,6 +129,24 @@ export class VectorIndex {
       }
       idx = VectorIndex.fromF32(vectors, meta, manifest);
     }
+    // optional IVF layer — searches scan only the closest clusters when present
+    const ivfPath = path.join(dir, "ivf.json");
+    if (await fs.stat(ivfPath).then(() => true, () => false)) {
+      const conf = JSON.parse(await fs.readFile(ivfPath, "utf8")) as {
+        k: number;
+        dim: number;
+        nprobe: number;
+        lists: number[][];
+      };
+      const cbuf = await fs.readFile(path.join(dir, "centroids.f32"));
+      idx.ivf = {
+        centroids: new Float32Array(cbuf.buffer, cbuf.byteOffset, cbuf.byteLength / 4),
+        k: conf.k,
+        nprobe: conf.nprobe,
+        lists: conf.lists.map((l) => Int32Array.from(l)),
+      };
+    }
+
     // page the buffers in so the first real query doesn't pay it
     idx.search(new Float32Array(manifest.dim), 1);
     return idx;
@@ -206,8 +226,7 @@ export class VectorIndex {
     // top-k via a small insertion buffer — k is tiny (<=20)
     const topIdx = new Int32Array(k).fill(-1);
     const topScore = new Float32Array(k).fill(-Infinity);
-    for (const [lo, hi] of ranges)
-    for (let i = lo; i < hi; i++) {
+    const score = (i: number) => {
       const off = i * dim;
       let d0 = 0, d1 = 0, d2 = 0, d3 = 0;
       for (let d = 0; d < dim; d += 4) {
@@ -217,8 +236,7 @@ export class VectorIndex {
         d3 += q8[off + d + 3] * query[d + 3];
       }
       const dot = (d0 + d1 + d2 + d3) * scales[i];
-      if (dot <= topScore[k - 1]) continue;
-      // insert
+      if (dot <= topScore[k - 1]) return;
       let j = k - 1;
       while (j > 0 && topScore[j - 1] < dot) {
         topScore[j] = topScore[j - 1];
@@ -227,6 +245,44 @@ export class VectorIndex {
       }
       topScore[j] = dot;
       topIdx[j] = i;
+    };
+
+    // IVF is safe only when the requested strategies span the whole index
+    // (its cluster lists reference all rows) — true for the deploy index,
+    // which is single-strategy. Otherwise fall back to the flat partition scan.
+    const spansAll =
+      !strategies?.length ||
+      ranges.reduce((s, [lo, hi]) => s + (hi - lo), 0) === meta.length;
+    const ivf = this.ivf;
+    if (ivf && spansAll) {
+      const nprobe = Math.min(
+        ivf.k,
+        Number(process.env.RETRIEVE_NPROBE) || ivf.nprobe,
+      );
+      // score all centroids, take the top nprobe clusters
+      const cIdx = new Int32Array(nprobe).fill(-1);
+      const cScore = new Float32Array(nprobe).fill(-Infinity);
+      for (let c = 0; c < ivf.k; c++) {
+        let dot = 0;
+        const co = c * dim;
+        for (let d = 0; d < dim; d++) dot += ivf.centroids[co + d] * query[d];
+        if (dot <= cScore[nprobe - 1]) continue;
+        let j = nprobe - 1;
+        while (j > 0 && cScore[j - 1] < dot) {
+          cScore[j] = cScore[j - 1];
+          cIdx[j] = cIdx[j - 1];
+          j--;
+        }
+        cScore[j] = dot;
+        cIdx[j] = c;
+      }
+      for (let j = 0; j < nprobe; j++) {
+        if (cIdx[j] < 0) break;
+        const list = ivf.lists[cIdx[j]];
+        for (let l = 0; l < list.length; l++) score(list[l]);
+      }
+    } else {
+      for (const [lo, hi] of ranges) for (let i = lo; i < hi; i++) score(i);
     }
     const out: RetrievedChunk[] = [];
     const seenParents = new Set<string>();
