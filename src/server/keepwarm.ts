@@ -6,14 +6,25 @@
 import { embedQuery } from "@/lib/embedder";
 import { getIndex } from "@/lib/vindex";
 
-const INTERVAL_MS = 5_000;
+const INTERVAL_MS = Number(process.env.KEEPWARM_INTERVAL_MS) || 5_000;
 
-const g = globalThis as unknown as { __dhvaniKeepWarm?: ReturnType<typeof setInterval> };
+const g = globalThis as unknown as {
+  __dhvaniKeepWarm?: ReturnType<typeof setInterval>;
+  __dhvaniLastActivity?: number;
+};
+
+/** Called by the pipeline on every real query — recent traffic IS the warmth. */
+export function noteActivity(): void {
+  g.__dhvaniLastActivity = Date.now();
+}
 
 export function ensureKeepWarm(): void {
   if (g.__dhvaniKeepWarm) return;
   let n = 0;
   const timer = setInterval(async () => {
+    // skip the CPU work when real queries ran recently — on throttled shared
+    // vCPUs the probe itself competes with user requests for the CPU budget
+    if (Date.now() - (g.__dhvaniLastActivity ?? 0) < INTERVAL_MS) return;
     try {
       // vary the text so no tokenizer/session cache short-circuits the work
       const v = await embedQuery(`keep warm probe ${n++}`);

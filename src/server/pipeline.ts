@@ -30,7 +30,7 @@ import {
   UNGROUNDED_MESSAGE,
 } from "./guardrails";
 import { appendRecord } from "./analytics";
-import { ensureKeepWarm } from "./keepwarm";
+import { ensureKeepWarm, noteActivity } from "./keepwarm";
 
 export const DEFAULT_K = 8;
 
@@ -112,6 +112,7 @@ export async function runPipeline(
 ): Promise<PipelineResult> {
   const k = opts.k ?? DEFAULT_K;
   ensureKeepWarm();
+  noteActivity();
   const timings = emptyTimings();
   const errors: string[] = [];
   const t0 = performance.now();

@@ -26,5 +26,7 @@ services:
         value: data/index-mini
       - key: HF_CACHE_DIR
         value: ./.hf-cache
+      - key: KEEPWARM_INTERVAL_MS
+        value: "20000"
       - key: NODE_OPTIONS
         value: --max-old-space-size=300
