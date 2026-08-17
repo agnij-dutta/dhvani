@@ -7,6 +7,7 @@ import { Rail, RailLink } from "@/components/Wordmark";
 import { StatTile } from "@/components/StatTile";
 import { Distribution } from "@/components/Distribution";
 import { RecentTable } from "@/components/RecentTable";
+import { BenchPanel } from "@/components/BenchPanel";
 
 type Overall = Partial<Record<keyof PipelineTimings, LatencyStats>>;
 
@@ -120,6 +121,8 @@ export default function AnalyticsPage() {
             <StatTile key={f.key} label={f.label} stats={data?.overall?.[f.key]} />
           ))}
         </section>
+
+        <BenchPanel className="mt-16" />
 
         <Distribution values={ragValues} className="mt-16" />
 
