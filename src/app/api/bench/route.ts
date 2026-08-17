@@ -77,6 +77,10 @@ export async function POST(req: Request): Promise<Response> {
   const total: number[] = [];
   for (let i = 0; i < n; i++) {
     const q = queries[(i * 7 + 1) % queries.length];
+    // pace samples like real user queries: a back-to-back loop measures CPU
+    // saturation on shared instances (Render throttles at ~0.1 vCPU), not the
+    // per-query latency the budget is about
+    if (i > 0) await new Promise((r) => setTimeout(r, 350));
     const res = await runPipeline({ text: q }, noop, { generate: false, record: false });
     const t = res.timings;
     if (t.retrieveMs < 0) continue; // refused before retrieval — not a latency sample
