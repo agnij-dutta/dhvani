@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "./cn";
 
 const LANGUAGES: Record<string, string> = {
@@ -43,19 +43,32 @@ export function TranscriptBar({
   languageCode: string;
   className?: string;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={
+        shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }
+      }
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className={cn("flex flex-wrap items-baseline gap-x-4 gap-y-2", className)}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0.18 }
+          : { duration: 0.35, ease: [0.16, 1, 0.3, 1] }
+      }
+      className={cn(
+        "flex flex-wrap items-end justify-between gap-x-6 gap-y-3",
+        className,
+      )}
     >
-      <span className="tag shrink-0">heard</span>
-      <p className="min-w-0 flex-1 text-[17px] leading-snug text-paper">
-        {text || "—"}
-      </p>
+      <div className="min-w-0 flex-1">
+        <span className="tag block">heard</span>
+        <p className="mt-1 min-w-0 break-words text-[15px] font-medium leading-6 text-paper [overflow-wrap:anywhere]">
+          {text || "—"}
+        </p>
+      </div>
       {languageCode && (
-        <span className="tag shrink-0 border border-line-soft px-2 py-1 text-saffron">
+        <span className="tag shrink-0 rounded-full bg-white px-2.5 py-1 text-faint">
           {languageName(languageCode)}
           <span className="ml-1.5 text-faint">{languageCode}</span>
         </span>

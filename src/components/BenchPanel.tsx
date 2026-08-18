@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Gauge } from "lucide-react";
+import { IconGaugeFill18 as GaugeIcon } from "nucleo-ui-fill-18/components/IconGaugeFill18";
 import { cn } from "./cn";
 
 interface StageStats {
@@ -70,13 +70,17 @@ export function BenchPanel({ className }: { className?: string }) {
           onClick={() => void run()}
           disabled={running}
           className={cn(
-            "flex items-center gap-2 border border-line px-4 py-2 text-[12px] tracking-[0.14em] uppercase transition-colors",
+            "flex min-h-10 items-center gap-2 rounded-full px-4 py-2 text-[12px] font-semibold transition-colors",
             running
-              ? "cursor-wait text-faint"
-              : "text-saffron hover:border-saffron/50 hover:bg-saffron/5",
+              ? "cursor-wait bg-ink-3 text-faint"
+              : "bg-paper text-white hover:bg-black",
           )}
         >
-          <Gauge size={13} strokeWidth={1.6} className={running ? "animate-spin" : undefined} />
+          <GaugeIcon
+            aria-hidden
+            size={14}
+            className={running ? "animate-spin" : undefined}
+          />
           {running ? "Running…" : "Run benchmark"}
         </button>
       </div>
@@ -106,7 +110,7 @@ export function BenchPanel({ className }: { className?: string }) {
                   key={s}
                   className={cn(
                     "border-b border-line-soft",
-                    s === "total" && "bg-[linear-gradient(180deg,rgba(232,137,26,0.05),transparent)]",
+                    s === "total" && "bg-ink-2",
                   )}
                 >
                   <td className={cn("py-2.5 text-[13px]", s === "total" ? "text-saffron" : "text-muted")}>
@@ -123,10 +127,10 @@ export function BenchPanel({ className }: { className?: string }) {
           </table>
           <p
             className={cn(
-              "mt-4 inline-block border px-3 py-1.5 text-[12px] tracking-[0.1em] uppercase",
+              "mt-4 inline-block rounded-full bg-ink-2 px-3 py-1.5 text-[12px] font-semibold",
               result.pass
-                ? "border-jade/40 text-jade"
-                : "border-alert/40 text-alert",
+                ? "text-jade"
+                : "text-alert",
             )}
           >
             {result.pass ? "pass" : "over"} · p95 {fmt(result.stages.total?.p95)}ms against the{" "}

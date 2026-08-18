@@ -24,8 +24,8 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "border-t border-line px-5 py-5",
-        emphasis && "bg-[linear-gradient(180deg,rgba(232,137,26,0.06),transparent_70%)]",
+        "rounded-[14px] bg-ink-2 px-5 py-5",
+        emphasis && "bg-ink-3",
       )}
     >
       <div className="flex items-baseline justify-between">

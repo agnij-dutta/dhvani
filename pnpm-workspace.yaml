@@ -1,0 +1,9 @@
+allowBuilds:
+  '@google/genai': true
+  esbuild: true
+  nucleo-core-fill-24: true
+  nucleo-ui-fill-18: true
+  onnxruntime-node: true
+  protobufjs: true
+  sharp: true
+  unrs-resolver: true

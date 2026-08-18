@@ -1,54 +1,70 @@
 import type { Metadata } from "next";
-import {
-  Instrument_Sans,
-  Instrument_Serif,
-  JetBrains_Mono,
-  Tiro_Devanagari_Hindi,
-} from "next/font/google";
+import localFont from "next/font/local";
+import { VoiceAnimationTuningProvider } from "@/components/VoiceAnimationTuningProvider";
+import { VoiceEdgeGlowFrame } from "@/components/VoiceEdgeGlowFrame";
 import "./globals.css";
 
-const sans = Instrument_Sans({
-  variable: "--font-instrument-sans",
-  subsets: ["latin"],
+const openRunde = localFont({
+  src: [
+    {
+      path: "./fonts/OpenRunde-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/OpenRunde-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/OpenRunde-Semibold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/OpenRunde-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-open-runde",
   display: "swap",
+  fallback: ["Arial"],
 });
 
-const serif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const deva = Tiro_Devanagari_Hindi({
+const deva = localFont({
+  src: "./fonts/TiroDevanagariHindi-Regular.woff2",
   variable: "--font-tiro-deva",
   weight: "400",
-  subsets: ["devanagari", "latin"],
+  style: "normal",
   display: "swap",
+  fallback: ["serif"],
 });
 
 export const metadata: Metadata = {
   title: "Dhvani — voice RAG",
   description:
-    "Ask in any of 22 Indic languages. Dhvani transcribes, retrieves, and answers with citations — retrieval path under 200 ms.",
+    "Ask in English or one of 22 Indic languages. Dhvani transcribes, retrieves, and answers with citations against a 200 ms retrieval target.",
 };
+
+const DESIGN_CONTRACT = `THESIS: Dhvani makes multilingual voice retrieval feel as direct as asking a person; it refuses the dark AI-cockpit dashboard. OWN-WORLD: paper white, soft-gray work surfaces, charcoal pills, fine gray rules, Open Runde, fourteen-pixel containers, and capsule controls. STORY: ask aloud or type, follow six stages, read a cited answer or clear refusal, inspect evidence and timing. FIRST VIEWPORT: a floating black pill sits above a centered sixty-four-pixel question, circular voice control, status copy, and a segmented pipeline capsule perched on a broad gray workbench with the typed input. FORM: friendly live-analytics operating console, first of seven grounded directions; the user-pinned Visitors reference overrides seed 067f299d. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${serif.variable} ${mono.variable} ${deva.variable} h-full antialiased`}
+      className={`${openRunde.variable} ${deva.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-ink text-paper">
-        <div className="relative z-10 flex min-h-full flex-1 flex-col">
-          {children}
-        </div>
+      <body className="flex h-screen">
+        <template
+          data-design-contract="067f299d"
+          dangerouslySetInnerHTML={{
+            __html: `<!-- ${DESIGN_CONTRACT} -->`,
+          }}
+        />
+        <VoiceAnimationTuningProvider>
+          <VoiceEdgeGlowFrame>{children}</VoiceEdgeGlowFrame>
+        </VoiceAnimationTuningProvider>
       </body>
     </html>
   );

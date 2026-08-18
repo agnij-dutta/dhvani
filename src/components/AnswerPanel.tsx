@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
+import { useReducedMotion } from "framer-motion";
 import { cn } from "./cn";
 
 const CITATION = /\[(\d{1,2})\]/g;
@@ -24,6 +25,7 @@ export function AnswerPanel({
   onCitation: (index: number | null) => void;
   className?: string;
 }) {
+  const shouldReduceMotion = useReducedMotion();
   const parts = useMemo(() => {
     const out: Array<{ kind: "text"; value: string } | { kind: "cite"; n: number }> =
       [];
@@ -42,7 +44,10 @@ export function AnswerPanel({
 
   return (
     <div
-      className={cn("font-display text-[26px] leading-[1.45] text-paper sm:text-[30px]", className)}
+      className={cn(
+        "max-w-[72ch] font-display text-[18px] font-medium leading-7 tracking-[-0.03em] text-paper",
+        className,
+      )}
       aria-live="polite"
       aria-busy={streaming}
     >
@@ -58,16 +63,20 @@ export function AnswerPanel({
             onFocus={() => onCitation(part.n)}
             onBlur={() => onCitation(null)}
             onClick={() => {
-              document
-                .getElementById(`chunk-${part.n}`)
-                ?.scrollIntoView({ behavior: "smooth", block: "center" });
+              const target = document.getElementById(`chunk-${part.n}`);
+              target?.scrollIntoView({
+                behavior: shouldReduceMotion ? "auto" : "smooth",
+                block: "center",
+              });
+              target?.focus({ preventScroll: true });
             }}
             aria-label={`Source ${part.n}`}
+            aria-controls={`chunk-${part.n}`}
             className={cn(
-              "tnum relative -top-[0.55em] mx-[1px] inline-flex h-[17px] min-w-[17px] items-center justify-center rounded-[3px] border px-[3px] text-[10px] leading-none align-baseline transition-colors",
+              "tnum relative -top-[0.55em] mx-[2px] inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] leading-none align-baseline transition-colors",
               activeCitation === part.n
-                ? "border-saffron bg-saffron text-ink"
-                : "border-line text-saffron hover:border-saffron",
+                ? "bg-paper text-white"
+                : "bg-white text-paper hover:bg-ink-3",
             )}
           >
             {part.n}
@@ -77,7 +86,7 @@ export function AnswerPanel({
       {streaming && (
         <span
           aria-hidden
-          className="ml-1 inline-block h-[0.85em] w-[2px] translate-y-[0.06em] animate-[dhv-caret_1s_steps(1)_infinite] bg-saffron align-baseline"
+          className="ml-1 inline-block h-[0.85em] w-[2px] translate-y-[0.06em] animate-[dhv-caret_1s_steps(1)_infinite] bg-paper align-baseline"
         />
       )}
     </div>

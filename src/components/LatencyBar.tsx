@@ -6,10 +6,10 @@ import { cn, ms } from "./cn";
 const TARGET = 200;
 
 const SEGMENTS = [
-  { key: "guardMs", label: "guard", color: "#7a4a0d" },
-  { key: "embedMs", label: "embed", color: "#a86211" },
-  { key: "retrieveMs", label: "retrieve", color: "#e8891a" },
-  { key: "ttftMs", label: "first token", color: "#ffc06b" },
+  { key: "guardMs", label: "guard", color: "#d1d1d4" },
+  { key: "embedMs", label: "embed", color: "#a6a6aa" },
+  { key: "retrieveMs", label: "retrieve", color: "#6f6f74" },
+  { key: "ttftMs", label: "first token", color: "#202024" },
 ] as const;
 
 const clean = (v: number | undefined) =>
@@ -29,45 +29,48 @@ export function LatencyBar({
   className?: string;
 }) {
   const rag = clean(timings.ragMs);
-  const under = rag > 0 && rag <= TARGET;
+  const hasRag = rag > 0;
+  const under = hasRag && rag <= TARGET;
   const axis = Math.max(TARGET * 1.25, Math.ceil((rag * 1.2) / 50) * 50);
   const sum = SEGMENTS.reduce((a, s) => a + clean(timings[s.key]), 0) || 1;
+  const ragValue = !hasRag
+    ? "—"
+    : rag >= 1000
+      ? (rag / 1000).toFixed(2)
+      : `${Math.round(rag)}`;
+  const ragUnit = !hasRag ? "" : rag >= 1000 ? "s" : "ms";
 
   return (
     <section
-      className={cn("border-t border-line pt-7", className)}
+      className={cn("pt-7", className)}
       aria-label="Latency breakdown"
     >
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
+      <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-12">
         {/* the readout */}
-        <div className="shrink-0">
+        <div className="w-[142px] shrink-0">
           <div className="tag">retrieval path</div>
-          <div className="mt-2 flex items-baseline gap-2">
+          <div className="mt-2 flex items-baseline justify-between gap-3">
             <span
               className={cn(
-                "tnum text-[64px] leading-[0.85] tracking-tight",
-                under ? "text-jade" : "text-saffron",
+                "tnum text-[32px] font-bold leading-none tracking-[-0.04em]",
+                !hasRag ? "text-faint" : under ? "text-jade" : "text-alert",
               )}
             >
-              {ms(rag)}
+              {ragValue}
             </span>
-            <span className="tnum text-[15px] text-muted">{rag >= 1000 ? "" : "ms"}</span>
+            <span className="tnum text-[15px] text-muted">{ragUnit}</span>
           </div>
           <div
             className={cn(
-              "tag mt-3 inline-flex items-center gap-2 border px-2 py-1",
-              under
-                ? "border-jade/40 text-jade"
-                : "border-saffron/40 text-saffron",
+              "tag mt-2",
+              !hasRag ? "text-faint" : under ? "text-jade" : "text-alert",
             )}
           >
-            <span
-              className={cn(
-                "h-[5px] w-[5px] rounded-full",
-                under ? "bg-jade" : "bg-saffron",
-              )}
-            />
-            {under ? "under 200 ms target" : "over 200 ms target"}
+            {!hasRag
+              ? "timing unavailable"
+              : under
+                ? "under 200 ms target"
+                : "over 200 ms target"}
           </div>
         </div>
 
@@ -77,15 +80,20 @@ export function LatencyBar({
             {/* target line */}
             <div
               aria-hidden
-              className="absolute top-1 bottom-0 border-l border-dashed border-paper/35"
+              className="absolute top-1 bottom-0 border-l border-dashed border-paper/25"
               style={{ left: `${(TARGET / axis) * 100}%` }}
+            />
+            <span
+              aria-hidden
+              className="tag absolute top-0 whitespace-nowrap text-muted"
+              style={{
+                left: `clamp(0px, calc(${(TARGET / axis) * 100}% + 8px), calc(100% - 88px))`,
+              }}
             >
-              <span className="tag absolute -top-[2px] left-2 whitespace-nowrap text-paper/60">
-                200 ms target
-              </span>
-            </div>
+              200 ms target
+            </span>
 
-            <div className="flex h-3 w-full gap-px overflow-hidden rounded-[2px] bg-ink-2">
+            <div className="flex h-3 w-full gap-px overflow-hidden rounded-full bg-white">
               {SEGMENTS.map((seg, i) => {
                 const value = clean(timings[seg.key]);
                 const share = (value / sum) * (rag / axis);
@@ -110,7 +118,7 @@ export function LatencyBar({
             </div>
           </div>
 
-          <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+          <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 lg:grid-cols-4">
             {SEGMENTS.map((seg) => (
               <div key={seg.key} className="flex items-baseline gap-2">
                 <span
@@ -133,7 +141,7 @@ export function LatencyBar({
         <Readout label="generation" value={ms(timings.generateMs)} />
         <Readout label="wall clock" value={ms(timings.totalMs)} />
         {provider && (
-          <span className="tag ml-auto normal-case tracking-[0.14em] text-faint">
+          <span className="tag ml-auto max-w-full break-words text-right normal-case tracking-[0.14em] text-faint">
             via {provider}
           </span>
         )}

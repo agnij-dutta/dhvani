@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-18T11:27:27Z",
+  "title": "Design System: Dhvani",
+  "extensions": {
+    "colorMeta": {
+      "primary-charcoal": {
+        "role": "primary",
+        "displayName": "Voice Charcoal",
+        "canonical": "#18181b",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "canvas-white": {
+        "role": "neutral",
+        "displayName": "Canvas White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "workbench-fog": {
+        "role": "neutral",
+        "displayName": "Workbench Fog",
+        "canonical": "#f5f5f5",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "quiet-surface": {
+        "role": "neutral",
+        "displayName": "Quiet Surface",
+        "canonical": "#e9e9e9",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline Gray",
+        "canonical": "#d7d7d7",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "soft-hairline": {
+        "role": "neutral",
+        "displayName": "Soft Hairline",
+        "canonical": "#e6e6e6",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "body-gray": {
+        "role": "neutral",
+        "displayName": "Body Gray",
+        "canonical": "#5f5f63",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "faint-gray": {
+        "role": "neutral",
+        "displayName": "Faint Gray",
+        "canonical": "#6c6c70",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "absolute-black": {
+        "role": "neutral",
+        "displayName": "Absolute Black",
+        "canonical": "#000000",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "rail-charcoal": {
+        "role": "neutral",
+        "displayName": "Rail Charcoal",
+        "canonical": "#18181d",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "state-strong": {
+        "role": "neutral",
+        "displayName": "State Strong",
+        "canonical": "#29292d",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "state-soft": {
+        "role": "neutral",
+        "displayName": "State Soft",
+        "canonical": "#4c4c51",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "timing-guard": {
+        "role": "neutral",
+        "displayName": "Timing Guard",
+        "canonical": "#d1d1d4",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "timing-embed": {
+        "role": "neutral",
+        "displayName": "Timing Embed",
+        "canonical": "#a6a6aa",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "timing-retrieve": {
+        "role": "neutral",
+        "displayName": "Timing Retrieve",
+        "canonical": "#6f6f74",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "timing-first-token": {
+        "role": "neutral",
+        "displayName": "Timing First Token",
+        "canonical": "#202024",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Compact two-line promises and singular route statements."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Secondary route titles, including analytics."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Refusal and contained-state headings."
+      },
+      "answer": {
+        "displayName": "Answer",
+        "purpose": "Streamed grounded answers at a readable measure."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Prompts, transcript, explanations, and source passages."
+      },
+      "label": {
+        "displayName": "Utility Label",
+        "purpose": "Stages, tags, action labels, and compact metadata."
+      },
+      "numeric": {
+        "displayName": "Tabular Numeric",
+        "purpose": "Timing, scores, counts, percentiles, and axes."
+      },
+      "wordmark-devanagari": {
+        "displayName": "Devanagari Wordmark",
+        "purpose": "The ध्वनि half of the bilingual product mark only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "navigation-float",
+        "value": "0 8px 24px rgba(0,0,0,0.14)",
+        "purpose": "Ambient lift for the sticky navigation rail."
+      },
+      {
+        "name": "voice-rest",
+        "value": "0 12px 32px rgba(0,0,0,0.16)",
+        "purpose": "Default lift for the microphone core."
+      },
+      {
+        "name": "voice-hover",
+        "value": "0 16px 38px rgba(0,0,0,0.20)",
+        "purpose": "Slightly stronger microphone hover feedback."
+      },
+      {
+        "name": "voice-recording",
+        "value": "0 8px 24px rgba(0,0,0,0.12)",
+        "purpose": "Settled lift while recording."
+      },
+      {
+        "name": "pipeline-float",
+        "value": "0 10px 30px rgba(0,0,0,0.11)",
+        "purpose": "Lift where the pipeline bridges canvas and workbench."
+      },
+      {
+        "name": "input-rest",
+        "value": "0 2px 8px rgba(0,0,0,0.06)",
+        "purpose": "Quiet default lift for the typed question field."
+      },
+      {
+        "name": "input-focus",
+        "value": "0 4px 16px rgba(0,0,0,0.10)",
+        "purpose": "Focus-within feedback for the typed question field."
+      }
+    ],
+    "motion": [
+      {
+        "name": "settle-ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entrances and state changes that settle without bounce."
+      },
+      {
+        "name": "feedback-fast",
+        "value": "180ms",
+        "purpose": "Opacity-only fallback and immediate feedback."
+      },
+      {
+        "name": "content-entry",
+        "value": "350ms–500ms",
+        "purpose": "Transcript, refusal, hero, and result entrances."
+      },
+      {
+        "name": "control-state",
+        "value": "300ms",
+        "purpose": "Color and shadow transitions on controls and pipeline stages."
+      },
+      {
+        "name": "voice-breathe",
+        "value": "5s ease-in-out",
+        "purpose": "Restrained idle breathing on the microphone core."
+      },
+      {
+        "name": "processing-spin",
+        "value": "1.1s linear",
+        "purpose": "Single rotating dial stroke while processing."
+      },
+      {
+        "name": "progress-fill",
+        "value": "500ms–700ms ease-out; 60ms segment stagger",
+        "purpose": "Source-score and latency-bar growth."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.001ms; one iteration",
+        "purpose": "Global reduced-motion fallback; state still changes without travel, looping, or smooth scroll."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Floating Navigation",
+      "kind": "nav",
+      "refersTo": "navigation-rail",
+      "description": "The shared bilingual route rail: compact, solid, and visibly floating.",
+      "html": "<nav class=\"ds-rail\" aria-label=\"Primary\"><a class=\"ds-wordmark\" href=\"#\"><span class=\"ds-wordmark-deva\" aria-hidden=\"true\">ध्वनि</span><span>Dhvani</span></a><span class=\"ds-rail-context\">English + 22 Indic · cited answers</span><a class=\"ds-rail-link\" href=\"#\">Analytics</a></nav>",
+      "css": ".ds-rail{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:640px;height:48px;margin:auto;padding:0 12px;border-radius:9999px;background:#18181d;color:var(--color-ink,#fff);box-shadow:0 8px 24px rgba(0,0,0,.14);font-family:var(--font-open-runde),Arial,sans-serif}.ds-wordmark{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;letter-spacing:-.02em}.ds-wordmark-deva{color:rgba(255,255,255,.65);font-family:var(--font-tiro-deva),serif;font-weight:400}.ds-rail-context{margin-left:auto;color:rgba(255,255,255,.5);font-size:12px;font-weight:500}.ds-rail-link{padding:8px 12px;border-radius:9999px;color:rgba(255,255,255,.65);font-size:13px;font-weight:500;letter-spacing:-.01em;text-decoration:none;transition:background-color .18s,color .18s}.ds-rail-link:hover{background:rgba(255,255,255,.1);color:#fff}.ds-rail-link:active{background:rgba(255,255,255,.16)}.ds-rail a:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:10px}@media(max-width:639px){.ds-rail-context{display:none}}"
+    },
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A compact charcoal capsule for decisive submit and benchmark actions.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Ask<svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"13\" height=\"13\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 10-5 5 5 5\"/><path d=\"M20 4v7a4 4 0 0 1-4 4H4\"/></svg></button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:8px 16px;border:0;border-radius:9999px;background:var(--color-paper,#18181b);color:var(--color-ink,#fff);font-family:var(--font-open-runde),Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:-.01em;cursor:pointer;transition:background-color .18s,opacity .18s,transform .18s}.ds-btn-primary:hover{background:#000}.ds-btn-primary:active{transform:scale(.97)}.ds-btn-primary:focus-visible{outline:2px solid var(--color-paper,#18181b);outline-offset:3px}.ds-btn-primary:disabled{cursor:not-allowed;opacity:.25}"
+    },
+    {
+      "name": "Typed Question Field",
+      "kind": "input",
+      "refersTo": "ask-field",
+      "description": "The full-width typed fallback with its primary action contained inside the capsule.",
+      "html": "<form class=\"ds-ask\"><input class=\"ds-ask-input\" aria-label=\"Type a question\" placeholder=\"Type your question…\"/><button class=\"ds-ask-submit\" type=\"button\">Ask<svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 10-5 5 5 5\"/><path d=\"M20 4v7a4 4 0 0 1-4 4H4\"/></svg></button></form>",
+      "css": ".ds-ask{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 8px 8px 20px;border-radius:9999px;background:var(--color-ink,#fff);box-shadow:0 2px 8px rgba(0,0,0,.06);font-family:var(--font-open-runde),Arial,sans-serif;transition:box-shadow .18s}.ds-ask:focus-within{box-shadow:0 4px 16px rgba(0,0,0,.1)}.ds-ask-input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:var(--color-paper,#18181b);font:400 16px/1.5 var(--font-open-runde),Arial,sans-serif;letter-spacing:-.015em}.ds-ask-input::placeholder{color:var(--color-faint,#6c6c70)}.ds-ask-submit{display:flex;align-items:center;gap:6px;height:40px;padding:0 16px;border:0;border-radius:9999px;background:var(--color-paper,#18181b);color:#fff;font:600 13px/1 var(--font-open-runde),Arial,sans-serif;cursor:pointer;transition:background-color .18s,transform .18s}.ds-ask-submit:hover{background:#000}.ds-ask-submit:active{transform:scale(.97)}.ds-ask-submit:focus-visible{outline:2px solid var(--color-paper,#18181b);outline-offset:3px}"
+    },
+    {
+      "name": "Voice Orb",
+      "kind": "custom",
+      "refersTo": "voice-control",
+      "description": "The concentric push-to-talk instrument with idle, recording, processing, and blocked states.",
+      "html": "<div class=\"ds-orb\" data-state=\"idle\"><span class=\"ds-orb-plate\" aria-hidden=\"true\"></span><span class=\"ds-orb-dial\" aria-hidden=\"true\"></span><button class=\"ds-orb-core\" type=\"button\" aria-label=\"Hold to speak\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"26\" height=\"26\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><path d=\"M12 19v3\"/></svg></button></div>",
+      "css": "@keyframes ds-orb-breathe{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.025);opacity:1}}@keyframes ds-orb-spin{to{transform:rotate(360deg)}}.ds-orb{position:relative;display:flex;align-items:center;justify-content:center;width:252px;height:252px;color:var(--color-paper,#18181b)}.ds-orb-plate{position:absolute;width:208px;height:208px;border-radius:50%;background:var(--color-ink-2,#f5f5f5)}.ds-orb-dial{position:absolute;width:244px;height:244px;border:1px solid var(--color-line,#d7d7d7);border-radius:50%}.ds-orb-core{position:relative;display:flex;align-items:center;justify-content:center;width:112px;height:112px;border:0;border-radius:50%;background:var(--color-paper,#18181b);color:#fff;box-shadow:0 12px 32px rgba(0,0,0,.16);cursor:pointer;animation:ds-orb-breathe 5s ease-in-out infinite;transition:color .3s,background-color .3s,box-shadow .3s,transform .18s}.ds-orb-core:hover{box-shadow:0 16px 38px rgba(0,0,0,.2)}.ds-orb-core:active{transform:scale(.96)}.ds-orb-core:focus-visible{outline:2px solid var(--color-paper,#18181b);outline-offset:3px}.ds-orb[data-state=recording] .ds-orb-core{background:#fff;color:var(--color-paper,#18181b);box-shadow:0 8px 24px rgba(0,0,0,.12);animation:none}.ds-orb[data-state=processing] .ds-orb-dial{border-top-color:var(--color-paper,#18181b);border-width:2px;animation:ds-orb-spin 1.1s linear infinite}.ds-orb[data-state=blocked] .ds-orb-core{background:var(--color-ink-3,#e9e9e9);color:var(--color-alert,#4c4c51);box-shadow:none;cursor:not-allowed;animation:none}@media(prefers-reduced-motion:reduce){.ds-orb-core,.ds-orb-dial{animation:none!important;transition-duration:.001ms!important}}"
+    },
+    {
+      "name": "Pipeline Capsule",
+      "kind": "custom",
+      "refersTo": "pipeline-capsule",
+      "description": "Six retrieval stages presented as one compact progress instrument.",
+      "html": "<ol class=\"ds-pipeline\" aria-label=\"Pipeline progress\"><li class=\"ds-stage ds-stage-done\"><strong>listen</strong><span>620 ms</span></li><li class=\"ds-stage ds-stage-active\" aria-current=\"step\"><strong>guard</strong><span>working</span></li><li class=\"ds-stage\"><strong>embed</strong><span>waiting</span></li><li class=\"ds-stage\"><strong>retrieve</strong><span>waiting</span></li><li class=\"ds-stage\"><strong>generate</strong><span>waiting</span></li><li class=\"ds-stage\"><strong>ground</strong><span>waiting</span></li></ol>",
+      "css": ".ds-pipeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;width:100%;margin:0;padding:6px;list-style:none;border-radius:9999px;background:var(--color-ink,#fff);box-shadow:0 10px 30px rgba(0,0,0,.11);font-family:var(--font-open-runde),Arial,sans-serif}.ds-stage{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border-radius:9999px;color:var(--color-faint,#6c6c70);text-align:center;transition:background-color .3s,color .3s}.ds-stage strong{max-width:100%;overflow:hidden;font-size:9px;font-weight:600;line-height:1;text-overflow:ellipsis}.ds-stage span{margin-top:4px;font-size:9px;line-height:1;font-variant-numeric:tabular-nums}.ds-stage-done{background:var(--color-ink-2,#f5f5f5);color:var(--color-paper,#18181b)}.ds-stage-done span{color:var(--color-muted,#5f5f63)}.ds-stage-active{background:var(--color-paper,#18181b);color:#fff}.ds-stage-active span{color:rgba(255,255,255,.7)}@media(min-width:640px){.ds-stage strong{font-size:11px}.ds-stage span{font-size:10px}}@media(prefers-reduced-motion:reduce){.ds-stage{transition-duration:.001ms}}"
+    },
+    {
+      "name": "Citation Chip",
+      "kind": "chip",
+      "refersTo": "citation-chip",
+      "description": "A superscript source link that visibly connects answer text to evidence.",
+      "html": "<button class=\"ds-citation\" type=\"button\" aria-label=\"Source 2\">2</button>",
+      "css": ".ds-citation{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border:0;border-radius:9999px;background:var(--color-ink,#fff);color:var(--color-paper,#18181b);font:400 10px/1 var(--font-open-runde),Arial,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;transition:background-color .18s,color .18s}.ds-citation:hover,.ds-citation[aria-pressed=true]{background:var(--color-paper,#18181b);color:#fff}.ds-citation:active{background:#000}.ds-citation:focus-visible{outline:2px solid var(--color-paper,#18181b);outline-offset:3px}"
+    },
+    {
+      "name": "Refusal Card",
+      "kind": "card",
+      "refersTo": "content-card",
+      "description": "A human-first refusal with the raw guard detail visually subordinate.",
+      "html": "<section class=\"ds-refusal\" role=\"status\"><div class=\"ds-refusal-kicker\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"13\" height=\"13\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20.5 13.5 12 22l-8.5-8.5a6 6 0 1 1 8.5-8.5 6 6 0 1 1 8.5 8.5Z\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>ungrounded</span></div><h2>Nothing retrieved supports an answer.</h2><p>The passages that came back don’t contain the fact you asked for. Name the specific thing you want and try again.</p><details><summary>Technical details</summary><p>guard → evidence threshold not met</p></details></section>",
+      "css": ".ds-refusal{padding:24px;border-radius:14px;background:var(--color-ink,#fff);color:var(--color-paper,#18181b);font-family:var(--font-open-runde),Arial,sans-serif}.ds-refusal-kicker{display:flex;align-items:center;gap:10px;color:var(--color-alert,#4c4c51)}.ds-refusal-kicker span{padding:4px 10px;border-radius:9999px;background:var(--color-ink-2,#f5f5f5);font-size:12px;font-weight:500;letter-spacing:-.01em}.ds-refusal h2{margin:16px 0 0;font-size:25px;font-weight:600;line-height:1.25;letter-spacing:-.025em}.ds-refusal>p{max-width:54ch;margin:8px 0 0;color:var(--color-muted,#5f5f63);font-size:14px;line-height:1.65}.ds-refusal details{margin-top:16px;padding-top:12px;border-top:1px solid var(--color-line-soft,#e6e6e6);color:var(--color-faint,#6c6c70);font-size:11.5px}.ds-refusal summary{width:max-content;cursor:pointer;text-decoration:underline;text-decoration-color:var(--color-line,#d7d7d7);text-underline-offset:4px}.ds-refusal summary:hover{color:var(--color-paper,#18181b)}.ds-refusal summary:focus-visible{outline:2px solid var(--color-paper,#18181b);outline-offset:3px;border-radius:10px}"
+    },
+    {
+      "name": "Source Passage Row",
+      "kind": "custom",
+      "refersTo": "source-row",
+      "description": "A flat, divided evidence row with score, excerpt, and explicit expansion.",
+      "html": "<article class=\"ds-source\"><div class=\"ds-source-meta\"><span class=\"ds-source-index\">02</span><span class=\"ds-source-tag\">sentence</span><span class=\"ds-source-meter\" aria-hidden=\"true\"><span></span></span><span class=\"ds-source-score\">0.842</span></div><p>The retrieved passage is shown as readable evidence, with enough context to verify the answer.</p><button type=\"button\">Full passage⌄</button></article>",
+      "css": ".ds-source{padding:20px 0;border-top:1px solid var(--color-line,#d7d7d7);color:var(--color-muted,#5f5f63);font-family:var(--font-open-runde),Arial,sans-serif;transition:color .2s}.ds-source:hover{color:var(--color-paper,#18181b)}.ds-source-meta{display:flex;align-items:baseline;gap:12px}.ds-source-index,.ds-source-score{font-size:12px;font-variant-numeric:tabular-nums}.ds-source-index{font-size:13px;color:var(--color-faint,#6c6c70)}.ds-source-tag{padding:2px 8px;border-radius:9999px;background:var(--color-ink,#fff);font-size:10px;font-weight:500}.ds-source-meter{width:56px;height:3px;margin-left:auto;overflow:hidden;border-radius:9999px;background:var(--color-line-soft,#e6e6e6)}.ds-source-meter span{display:block;width:72%;height:100%;border-radius:inherit;background:var(--color-faint,#6c6c70)}.ds-source p{margin:8px 0 0;font-size:13.5px;line-height:1.65}.ds-source button{margin-top:12px;padding:0;border:0;background:transparent;color:var(--color-faint,#6c6c70);font:500 12px/1.4 var(--font-open-runde),Arial,sans-serif;text-decoration:underline;text-decoration-color:var(--color-line,#d7d7d7);text-underline-offset:4px;cursor:pointer}.ds-source button:hover{color:var(--color-paper,#18181b)}.ds-source button:focus-visible{outline:2px solid var(--color-paper,#18181b);outline-offset:3px;border-radius:10px}"
+    },
+    {
+      "name": "Metric Tile",
+      "kind": "card",
+      "refersTo": "metric-tile",
+      "description": "A flat percentile tile that keeps benchmark status and context legible.",
+      "html": "<section class=\"ds-metric\"><div class=\"ds-metric-head\"><span>retrieval path · ragMs</span><strong>pass</strong></div><p><b>148</b><small>ms p50</small></p><dl><div><dt>p90</dt><dd>184 ms</dd></div><div><dt>mean</dt><dd>152 ms</dd></div></dl></section>",
+      "css": ".ds-metric{padding:20px;border-radius:14px;background:var(--color-ink-2,#f5f5f5);color:var(--color-paper,#18181b);font-family:var(--font-open-runde),Arial,sans-serif}.ds-metric-head{display:flex;align-items:baseline;justify-content:space-between;color:var(--color-faint,#6c6c70);font-size:12px;font-weight:500}.ds-metric-head strong{color:var(--color-jade,#29292d);font-weight:500}.ds-metric p{display:flex;align-items:baseline;gap:6px;margin:10px 0 0}.ds-metric b{font-size:46px;font-weight:400;line-height:1;letter-spacing:-.025em;font-variant-numeric:tabular-nums}.ds-metric small{color:var(--color-faint,#6c6c70);font-size:11px;font-variant-numeric:tabular-nums}.ds-metric dl{margin:16px 0 0}.ds-metric dl div{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--color-line-soft,#e6e6e6);font-size:12.5px}.ds-metric dt{color:var(--color-faint,#6c6c70);font-size:12px}.ds-metric dd{margin:0;color:var(--color-muted,#5f5f63);font-variant-numeric:tabular-nums}.ds-metric:hover{background:var(--color-ink-3,#e9e9e9)}.ds-metric:focus-within{outline:2px solid var(--color-paper,#18181b);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Voice Instrument",
+    "overview": "Dhvani is a bright, low-noise operating surface built around one decisive act: asking a question. Generous white space, rounded Open Runde typography, tactile charcoal controls, and precise gray rules make voice retrieval feel direct and calm rather than theatrical or technical.\n\nThe interface reveals proof without turning into a dashboard. Transcript, pipeline, grounding, citations, sources, refusal, and timing remain inspectable, while provider detail and HH Goa provenance stay subordinate. The bilingual “Dhvani ध्वनि” mark anchors the product across routes.",
+    "keyCharacteristics": [
+      "Bright white canvas with broad fog-gray work surfaces.",
+      "Ink-black floating navigation and primary controls.",
+      "Rounded, oversized Open Runde type with compact utilitarian labels.",
+      "One restrained concentric voice control as the signature instrument.",
+      "Grounding and performance proof expressed through structure, value, and copy—not chroma.",
+      "Flat content surfaces with ambient lift reserved for floating controls."
+    ],
+    "rules": [
+      {
+        "name": "The No-Chroma Rule",
+        "body": "Every foreground, surface, border, state, chart, and focus treatment remains neutral gray; success and refusal never depend on hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Charcoal-on-White Rule",
+        "body": "Default routes stay white with charcoal content. Fog surfaces group work; near-black is reserved for the rail and primary actions.",
+        "section": "colors"
+      },
+      {
+        "name": "The Neutral-State Rule",
+        "body": "Legacy semantic aliases are intentionally remapped to grayscale. Keep their rendered output neutral and pair every state with explicit language.",
+        "section": "colors"
+      },
+      {
+        "name": "The One-Runde Rule",
+        "body": "Use Open Runde for all Latin text—including numeric instruments. Do not introduce a monospace face to make technical detail feel “technical.”",
+        "section": "typography"
+      },
+      {
+        "name": "The Devanagari Mark Rule",
+        "body": "Tiro Devanagari is reserved for the bilingual wordmark; do not fake the script with the Latin fallback.",
+        "section": "typography"
+      },
+      {
+        "name": "The One-Stage Rule",
+        "body": "Give each route one obvious operating stage. Group related proof inside that stage instead of scattering it into competing card grids.",
+        "section": "layout"
+      },
+      {
+        "name": "The Floating-Only Rule",
+        "body": "Shadows belong to the rail, voice control, pipeline, and ask field. Content depth comes from tone and spacing.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Glass Rule",
+        "body": "Use solid fills—no blur, gradient, glow, or translucent glass panel as a substitute for hierarchy.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Semantic Silhouette Rule",
+        "body": "Fully round shapes mean action, state, or progress. Content remains in restrained 14px or 24px containers and flat divided rows.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do preserve voice, typed, keyboard, focus, live-status, and reduced-motion paths as equally legitimate ways to operate the product.",
+      "Do keep the bilingual “Dhvani ध्वनि” mark and self-host Open Runde weights 400–700.",
+      "Do make transcript, citations, grounding, source passages, refusal, and latency visibly inspectable.",
+      "Do use broad white space, one fog work surface, hairline structure, and a small number of floating charcoal capsules.",
+      "Do keep technical provenance and “HH Goa 2026 submission” compact and subordinate."
+    ],
+    "donts": [
+      "Don't introduce hue, gradients, glass effects, or a full-screen dark AI cockpit.",
+      "Don't communicate pass, warning, refusal, recording, or grounding through color value alone.",
+      "Don't replace the typed fallback or keyboard microphone behavior with a voice-only interaction.",
+      "Don't turn every information group into a rounded card or add shadows to resting content.",
+      "Don't surface raw provider errors before a plain-language recovery step.",
+      "Don't let hackathon provenance compete with the question, answer, or evidence."
+    ]
+  }
+}

@@ -5,23 +5,17 @@ export function Wordmark({ className }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={cn("group flex items-baseline gap-2.5", className)}
+      className={cn("group flex items-center gap-2", className)}
       aria-label="Dhvani, home"
     >
-      <span
-        aria-hidden
-        className="font-deva text-[19px] leading-none text-saffron transition-colors group-hover:text-saffron-hi"
-      >
-        ध्वनि
-      </span>
-      <span className="font-display text-[22px] leading-none tracking-tight text-paper">
+      <span className="font-display text-[15px] font-extrabold leading-none tracking-[-0.02em] text-black">
         Dhvani
       </span>
     </Link>
   );
 }
 
-/** Fixed instrument rail across the top of every page. */
+/** Floating navigation capsule shared by every page. */
 export function Rail({
   children,
   className,
@@ -30,17 +24,21 @@ export function Rail({
   className?: string;
 }) {
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-30 border-b border-line-soft bg-ink/85 backdrop-blur-md",
-        className,
-      )}
-    >
-      <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between px-6 sm:px-8">
-        <Wordmark />
-        <div className="flex items-center gap-6">{children}</div>
-      </div>
-    </header>
+    <>
+      <header
+        className={cn("pointer-events-none sticky top-0 z-101", className)}
+      >
+        <div className="dark-rail pointer-events-auto flex w-full items-center justify-between rounded-full p-5">
+          <Wordmark />
+          <div className="flex items-center gap-1">{children}</div>
+        </div>
+      </header>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none sticky left-0 right-0 top-0 z-100 h-20 w-full bg-white mask-[linear-gradient(to_bottom,rgba(0,0,0,1)_0%,transparent_100%)]"
+      />
+    </>
   );
 }
 
@@ -57,8 +55,8 @@ export function RailLink({
     <Link
       href={href}
       className={cn(
-        "tag transition-colors hover:text-paper",
-        active && "text-saffron",
+        "rounded-full px-3 py-1 text-[13px] font-medium transform-none text-black/65 transition-colors hover:bg-black/6 hover:text-black",
+        active && "bg-black text-white hover:bg-black hover:text-white/80",
       )}
     >
       {children}

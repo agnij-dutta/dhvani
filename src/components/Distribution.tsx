@@ -64,11 +64,11 @@ export function Distribution({
                 <div
                   className={cn(
                     "absolute bottom-0 w-full rounded-t-[1px] transition-[height] duration-500",
-                    under ? "bg-jade/70" : "bg-saffron/70",
+                    under ? "bg-paper/80" : "bg-faint/55",
                   )}
                   style={{ height: `${(count / max) * 100}%` }}
                 />
-                <span className="tnum pointer-events-none absolute bottom-full left-1/2 mb-1 hidden -translate-x-1/2 whitespace-nowrap border border-line bg-ink-2 px-1.5 py-0.5 text-[10px] text-paper group-hover:block">
+                <span className="tnum pointer-events-none absolute bottom-full left-1/2 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-paper px-2 py-1 text-[10px] text-white group-hover:block">
                   {count} · {Math.round(i * width)}–{Math.round((i + 1) * width)}ms
                 </span>
               </div>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { blobToWav } from "@/lib/wav";
+import { createVoiceBands, type VoiceBands } from "@/lib/voiceBands";
 
 export type RecorderState =
   | "idle"
@@ -22,6 +23,8 @@ export interface UseRecorder {
   error: string | null;
   /** live RMS level, 0..1 — read imperatively in a rAF loop, never re-renders */
   levelRef: React.RefObject<number>;
+  /** frequency-grouped voice energy for the listening ribbon; never re-renders */
+  bandsRef: React.RefObject<VoiceBands>;
   start: () => Promise<void>;
   stop: () => Promise<Utterance | null>;
   cancel: () => void;
@@ -53,11 +56,43 @@ export function extensionFor(mimeType: string): string {
   return "bin";
 }
 
+function follow(
+  current: number,
+  target: number,
+  delta: number,
+  attack: number,
+  release: number,
+): number {
+  const rate = target > current ? attack : release;
+  return current + (target - current) * Math.min(1, delta * rate);
+}
+
+function frequencyBand(
+  spectrum: Uint8Array,
+  binHz: number,
+  lowHz: number,
+  highHz: number,
+): number {
+  const first = Math.max(0, Math.floor(lowHz / binHz));
+  const last = Math.min(spectrum.length, Math.ceil(highHz / binHz));
+  if (last <= first) return 0;
+
+  let sum = 0;
+  for (let index = first; index < last; index++) sum += spectrum[index];
+  return sum / (last - first) / 255;
+}
+
+function liftVoiceEnergy(value: number): number {
+  const lifted = Math.max(0, value - 0.012) * 2.6;
+  return Math.min(1, lifted / (1 + lifted * 0.55));
+}
+
 export function useRecorder(): UseRecorder {
   const [state, setState] = useState<RecorderState>("idle");
   const [error, setError] = useState<string | null>(null);
 
   const levelRef = useRef(0);
+  const bandsRef = useRef<VoiceBands>(createVoiceBands());
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -72,9 +107,10 @@ export function useRecorder(): UseRecorder {
     void meter.ctx.close().catch(() => {});
     meterRef.current = null;
     levelRef.current = 0;
+    Object.assign(bandsRef.current, createVoiceBands());
   }, []);
 
-  /** AnalyserNode RMS metering — fftSize 512, smoothing 0.8, time-domain RMS. */
+  /** RMS plus frequency-grouped metering, kept outside React's render cycle. */
   const startMeter = useCallback(
     (stream: MediaStream) => {
       stopMeter();
@@ -82,25 +118,47 @@ export function useRecorder(): UseRecorder {
         const ctx = new AudioContext();
         const source = ctx.createMediaStreamSource(stream);
         const analyser = ctx.createAnalyser();
-        analyser.fftSize = 512;
-        analyser.smoothingTimeConstant = 0.8;
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.86;
         source.connect(analyser);
 
-        const buffer = new Uint8Array(analyser.fftSize);
-        let smoothed = 0;
+        const waveform = new Uint8Array(analyser.fftSize);
+        const spectrum = new Uint8Array(analyser.frequencyBinCount);
+        const binHz = ctx.sampleRate / analyser.fftSize;
+        let lastFrame = performance.now();
 
-        const tick = () => {
-          analyser.getByteTimeDomainData(buffer);
+        const tick = (now: number) => {
+          const delta = Math.min(0.1, Math.max(1 / 240, (now - lastFrame) / 1000));
+          lastFrame = now;
+          analyser.getByteTimeDomainData(waveform);
+          analyser.getByteFrequencyData(spectrum);
+
           let sum = 0;
-          for (let i = 0; i < buffer.length; i++) {
-            const v = (buffer[i] - 128) / 128;
+          for (let i = 0; i < waveform.length; i++) {
+            const v = (waveform[i] - 128) / 128;
             sum += v * v;
           }
-          const rms = Math.sqrt(sum / buffer.length);
-          // speech RMS sits low; lift it into a usable 0..1 display range
-          const scaled = Math.min(1, rms * 4.2);
-          smoothed = smoothed * 0.72 + scaled * 0.28;
-          levelRef.current = smoothed;
+          const rms = Math.sqrt(sum / waveform.length);
+          const levelTarget = Math.min(1, rms * 4.2);
+
+          // FFT bins are linear in Hz, so group them by voice ranges rather
+          // than slicing the array into thirds.
+          const lowTarget = liftVoiceEnergy(
+            frequencyBand(spectrum, binHz, 60, 320),
+          );
+          const midTarget = liftVoiceEnergy(
+            frequencyBand(spectrum, binHz, 320, 1600),
+          );
+          const highTarget = liftVoiceEnergy(
+            frequencyBand(spectrum, binHz, 1600, 6000),
+          );
+          const bands = bandsRef.current;
+          bands.low = follow(bands.low, lowTarget, delta, 9, 3.5);
+          bands.mid = follow(bands.mid, midTarget, delta, 10, 4);
+          bands.high = follow(bands.high, highTarget, delta, 11, 4.5);
+          bands.level = follow(bands.level, levelTarget, delta, 8, 3);
+          levelRef.current = bands.level;
+
           if (meterRef.current) {
             meterRef.current.raf = requestAnimationFrame(tick);
           }
@@ -238,5 +296,5 @@ export function useRecorder(): UseRecorder {
 
   useEffect(() => teardown, [teardown]);
 
-  return { state, error, levelRef, start, stop, cancel };
+  return { state, error, levelRef, bandsRef, start, stop, cancel };
 }

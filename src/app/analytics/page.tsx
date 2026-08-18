@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { IconTriangleWarningFill18 as WarningIcon } from "nucleo-ui-fill-18/components/IconTriangleWarningFill18";
 import type { AnalyticsRecord, LatencyStats, PipelineTimings } from "@/lib/types";
 import { Rail, RailLink } from "@/components/Wordmark";
 import { StatTile } from "@/components/StatTile";
@@ -56,10 +56,11 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     mounted.current = true;
-    void load();
+    const initial = window.setTimeout(() => void load(), 0);
     const id = setInterval(() => void load(), 5000);
     return () => {
       mounted.current = false;
+      clearTimeout(initial);
       clearInterval(id);
     };
   }, [load]);
@@ -73,7 +74,9 @@ export default function AnalyticsPage() {
   return (
     <>
       <Rail>
-        <span className="tag hidden sm:inline">refreshing every 5s</span>
+        <span className="tag hidden px-3 text-white/50 sm:inline">
+          refreshing every 5s
+        </span>
         <RailLink href="/">Console</RailLink>
       </Rail>
 
@@ -94,7 +97,7 @@ export default function AnalyticsPage() {
             </div>
             <span
               key={beat}
-              className="h-[7px] w-[7px] rounded-full bg-jade shadow-[0_0_10px_2px_rgba(87,201,138,0.5)]"
+              className="h-[7px] w-[7px] rounded-full bg-jade shadow-[0_3px_9px_rgba(0,0,0,0.24)]"
               aria-label="Live"
             />
           </div>
@@ -105,12 +108,12 @@ export default function AnalyticsPage() {
             role="alert"
             className="mb-8 flex items-center gap-2 border-l-2 border-alert py-3 pl-4 text-[13px] text-alert"
           >
-            <AlertTriangle size={14} strokeWidth={1.6} />
+            <WarningIcon aria-hidden size={14} className="shrink-0" />
             {error} — retrying every 5 seconds.
           </p>
         )}
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatTile
             label="retrieval path · ragMs"
             stats={data?.overall?.ragMs}

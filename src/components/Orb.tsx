@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Mic, MicOff } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
+import { IconMicrophoneFill18 as MicrophoneIcon } from "nucleo-ui-fill-18/components/IconMicrophoneFill18";
+import { IconMicrophoneSlashFill18 as MicrophoneOffIcon } from "nucleo-ui-fill-18/components/IconMicrophoneSlashFill18";
 import { cn } from "./cn";
 
 export type OrbMode =
@@ -31,18 +33,19 @@ interface OrbProps {
 export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
   const barsRef = useRef<(SVGRectElement | null)[]>([]);
   const coreRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
+  const plateRef = useRef<HTMLDivElement>(null);
 
   const heldRef = useRef(false);
   const pressAtRef = useRef(0);
   const latchedRef = useRef(false);
   const pendingStopRef = useRef(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const recording = mode === "recording";
 
   // Envelope dial: one bar advances per ~3 frames, so the ring holds ~3.5s.
   useEffect(() => {
-    if (!recording) {
+    if (!recording || shouldReduceMotion) {
       barsRef.current.forEach((bar) => {
         if (!bar) return;
         bar.setAttribute("y", String(CENTER - RING_R - 1));
@@ -50,7 +53,9 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
         bar.setAttribute("opacity", "0.18");
       });
       if (coreRef.current) coreRef.current.style.transform = "";
-      if (glowRef.current) glowRef.current.style.opacity = "";
+      if (plateRef.current) {
+        plateRef.current.style.opacity = recording ? "1" : "";
+      }
       return;
     }
 
@@ -64,8 +69,8 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
       if (coreRef.current) {
         coreRef.current.style.transform = `scale(${(1 + level * 0.16).toFixed(4)})`;
       }
-      if (glowRef.current) {
-        glowRef.current.style.opacity = (0.35 + level * 0.65).toFixed(3);
+      if (plateRef.current) {
+        plateRef.current.style.opacity = (0.64 + level * 0.36).toFixed(3);
       }
 
       if (frame++ % 3 === 0) {
@@ -85,7 +90,7 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [recording, levelRef]);
+  }, [recording, levelRef, shouldReduceMotion]);
 
   // A long press that outlasted the permission prompt still sends on release.
   useEffect(() => {
@@ -127,25 +132,23 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
       ? "Stop and send"
       : mode === "processing"
         ? "Working"
-        : "Hold to speak";
+        : mode === "blocked"
+          ? "Microphone unavailable"
+          : "Hold to speak";
 
   return (
-    <div className="relative flex h-[272px] w-[272px] items-center justify-center select-none">
-      {/* bloom */}
+    <div className="relative flex h-[252px] w-[252px] items-center justify-center select-none">
       <div
-        ref={glowRef}
+        ref={plateRef}
         aria-hidden
-        className={cn(
-          "pointer-events-none absolute h-[210px] w-[210px] rounded-full blur-[52px] transition-opacity duration-500",
-          recording ? "bg-saffron/55" : "bg-saffron/20",
-        )}
+        className="pointer-events-none absolute h-[208px] w-[208px] rounded-full bg-ink-2 transition-opacity duration-500"
       />
 
       {/* envelope dial */}
       <svg
         aria-hidden
         viewBox="0 0 200 200"
-        className="pointer-events-none absolute h-[272px] w-[272px]"
+        className="pointer-events-none absolute h-[244px] w-[244px]"
       >
         <circle
           cx={CENTER}
@@ -168,7 +171,7 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
             height={1}
             rx={0.9}
             opacity={0.18}
-            className="fill-saffron"
+            className="fill-paper"
             transform={`rotate(${(i / BARS) * 360} ${CENTER} ${CENTER})`}
           />
         ))}
@@ -182,8 +185,12 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
             strokeWidth="1.4"
             strokeLinecap="round"
             strokeDasharray="34 444"
-            className="origin-center text-saffron"
-            style={{ animation: "dhv-spin 1.1s linear infinite" }}
+            className="origin-center text-paper"
+            style={
+              shouldReduceMotion
+                ? undefined
+                : { animation: "dhv-spin 1.1s linear infinite" }
+            }
           />
         )}
       </svg>
@@ -192,7 +199,7 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
         type="button"
         aria-label={label}
         aria-pressed={recording}
-        disabled={mode === "processing"}
+        disabled={mode === "processing" || mode === "blocked"}
         onPointerDown={(e) => {
           e.preventDefault();
           press();
@@ -213,32 +220,33 @@ export function Orb({ mode, levelRef, onStart, onStop }: OrbProps) {
           }
         }}
         className={cn(
-          "relative flex h-[118px] w-[118px] touch-none items-center justify-center rounded-full",
-          "border transition-colors duration-300",
+          "relative flex h-[112px] w-[112px] touch-none items-center justify-center rounded-full shadow-[0_12px_32px_rgba(0,0,0,0.16)] transition-[color,box-shadow] duration-300",
           recording
-            ? "border-saffron/70 text-ink"
-            : "border-line text-saffron hover:border-saffron/50",
+            ? "text-paper shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+            : "text-white hover:shadow-[0_16px_38px_rgba(0,0,0,0.2)]",
           mode === "processing" && "cursor-progress",
-          mode === "blocked" && "border-alert/50 text-alert",
+          mode === "blocked" && "cursor-not-allowed text-alert shadow-none",
         )}
       >
         <div
           ref={coreRef}
           aria-hidden
           className={cn(
-            "absolute inset-0 rounded-full transition-[background,opacity] duration-300",
-            recording
-              ? "bg-[radial-gradient(circle_at_38%_30%,#ffcf8a,#e8891a_46%,#8a4a06_100%)]"
-              : "bg-[radial-gradient(circle_at_38%_28%,#3a2a1c,#15100d_72%)]",
-            !recording && mode !== "processing" && "animate-[dhv-breathe_5s_ease-in-out_infinite]",
+            "absolute inset-0 rounded-full transition-colors duration-300",
+            recording ? "bg-white" : "bg-paper",
+            mode === "blocked" && "bg-ink-3",
+            !shouldReduceMotion &&
+              !recording &&
+              mode !== "processing" &&
+              "animate-[dhv-breathe_5s_ease-in-out_infinite]",
           )}
           style={{ willChange: "transform" }}
         />
         <span className="relative z-10">
           {mode === "blocked" ? (
-            <MicOff size={26} strokeWidth={1.4} />
+            <MicrophoneOffIcon size={26} />
           ) : (
-            <Mic size={26} strokeWidth={1.4} />
+            <MicrophoneIcon size={26} />
           )}
         </span>
       </button>

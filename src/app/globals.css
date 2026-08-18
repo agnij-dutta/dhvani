@@ -1,43 +1,35 @@
 @import "tailwindcss";
 
-/* ─────────────────────────────────────────────────────────────
-   Dhvani — instrument panel meets Indic modernism.
-   Near-black warm ground, one burnt-saffron signal colour,
-   everything numeric set in mono like a cockpit readout.
-   ───────────────────────────────────────────────────────────── */
+/* Dhvani — a quiet, light operating surface for multilingual answers. */
 
 @theme inline {
-  /* ground */
-  --color-ink: #0a0807;
-  --color-ink-2: #100d0b;
-  --color-ink-3: #17120f;
-  --color-line: #2b221d;
-  --color-line-soft: #1e1815;
+  --color-ink: #ffffff;
+  --color-ink-2: #f5f5f5;
+  --color-ink-3: #e9e9e9;
+  --color-line: #d7d7d7;
+  --color-line-soft: #e6e6e6;
 
-  /* type */
-  --color-paper: #efe7dc;
-  --color-muted: #9a8c80;
-  --color-faint: #6a5e55;
+  --color-paper: #18181b;
+  --color-muted: #5f5f63;
+  --color-faint: #6c6c70;
 
-  /* signal */
-  --color-saffron: #e8891a;
-  --color-saffron-hi: #ffb454;
-  --color-saffron-dim: #6b3f0c;
+  --color-saffron: #18181b;
+  --color-saffron-hi: #000000;
+  --color-saffron-dim: #d7d7d7;
 
-  /* verdicts */
-  --color-jade: #57c98a;
-  --color-alert: #e0574a;
+  --color-jade: #29292d;
+  --color-alert: #4c4c51;
 
-  --font-display: var(--font-instrument-serif);
+  --font-display: var(--font-open-runde);
   --font-deva: var(--font-tiro-deva);
-  --font-sans: var(--font-instrument-sans);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-sans: var(--font-open-runde);
+  --font-mono: var(--font-open-runde);
 
-  --radius-instrument: 3px;
+  --radius-instrument: 14px;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -48,82 +40,242 @@ body {
   background: var(--color-ink);
   color: var(--color-paper);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "ss01", "cv01";
+  font-feature-settings: "ss01", "cv01", "cv02";
+  letter-spacing: -0.015em;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Warm ambient bloom + film grain. One layer, fixed, non-interactive. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(
-      1100px 620px at 50% -14%,
-      rgba(232, 137, 26, 0.11),
-      transparent 68%
-    ),
-    radial-gradient(
-      900px 520px at 92% 8%,
-      rgba(232, 137, 26, 0.045),
-      transparent 70%
-    );
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
-}
-
-/* Numbers are instruments: tabular, never reflowing mid-stream. */
 .tnum {
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+  letter-spacing: -0.025em;
 }
 
-/* Small caps utility label — the panel's vernacular */
 .tag {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0px;
   color: var(--color-faint);
 }
 
 ::selection {
-  background: rgba(232, 137, 26, 0.28);
-  color: var(--color-paper);
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-saffron);
+  outline: 2px solid var(--color-paper);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: 10px;
 }
 
-/* Scrollbars, quietly */
+.dark-rail :focus-visible {
+  outline-color: var(--color-ink);
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-line) transparent;
+  scrollbar-color: #b8b8bc transparent;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --mask-fade {
+  syntax: "<length>";
+  initial-value: 40px;
+  inherits: false;
+}
+
+/* Edge glow transition effect for active voice states. */
+.rainbow-inset-shadow-effect {
+  position: fixed;
+  inset: 20px;
+  z-index: 100000;
+  display: block;
+  /* width: 100%; */
+  /* height: 100%; */
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(12px);
+
+  --angle: 0deg;
+  --mask-fade: 40px;
+  --duration: 6s;
+  --mask-width: 4px;
+
+  background: conic-gradient(
+    from var(--angle),
+    #ff3366,
+    #ff9933,
+    #ffff33,
+    #33cc66,
+    #3399ff,
+    #9933ff,
+    #ff3366
+  );
+  transition:
+    opacity var(--duration)
+      linear(1 0%, 0.55 20%, 0.65 40%, 0.55 60%, 0.85 80%, 1 100%),
+    --angle var(--duration) linear,
+    --mask-fade var(--duration) ease-out;
+
+  mask-image:
+    linear-gradient(
+      to right,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    ),
+    linear-gradient(
+      to left,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    ),
+    linear-gradient(
+      to bottom,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    ),
+    linear-gradient(
+      to top,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-image:
+    linear-gradient(
+      to right,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    ),
+    linear-gradient(
+      to left,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    ),
+    linear-gradient(
+      to bottom,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    ),
+    linear-gradient(
+      to top,
+      black var(--mask-width),
+      transparent calc(var(--mask-width) + var(--mask-fade))
+    );
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.rainbow-inset-shadow-effect[data-active="true"] {
+  opacity: 0.5;
+  --angle: 720deg;
+  /* --mask-fade: 40px; */
+
+  --mask-fade: 40px;
+  --mask-width: 4px;
+}
+
+.rainbow-inset-shadow-effect[data-mode="thinking"] {
+  --angle: 540deg;
+  opacity: 0;
+}
+
+@starting-style {
+  .rainbow-inset-shadow-effect[data-active="true"] {
+    opacity: 0;
+    --angle: 0deg;
+    --mask-fade: 80px;
+  }
+}
+
+/* Dialkit is scoped to the animation lab and stays out of document flow. */
+.dialkit-lab-stack {
+  position: fixed;
+  z-index: 60;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  width: min(292px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  gap: 12px;
+}
+
+.dialkit-root.dialkit-lab-panel {
+  position: relative;
+  width: 100%;
+  max-height: calc((100dvh - 48px) / 2);
+}
+
+.dialkit-lab-panel-inner {
+  display: flex;
+  max-height: inherit;
+  flex-direction: column;
+  padding: 10px 12px 12px;
+  box-shadow: var(--dial-shadow);
+}
+
+.dialkit-lab-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialkit-lab-copy {
+  min-height: 28px;
+  border: 1px solid var(--dial-border);
+  border-radius: 7px;
+  padding: 0 8px;
+  color: var(--dial-text-section);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out;
+}
+
+.dialkit-lab-copy:hover {
+  background: var(--dial-surface-hover);
+  color: var(--dial-text-focus);
+}
+
+.dialkit-lab-controls {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.dialkit-lab-controls::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .dialkit-lab-stack {
+    top: 16px;
+    right: 16px;
+  }
 }
 
 @keyframes dhv-breathe {
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.85;
+    opacity: 0.72;
   }
   50% {
-    transform: scale(1.035);
+    transform: scale(1.025);
     opacity: 1;
   }
 }
@@ -157,11 +309,21 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  .rainbow-inset-shadow-effect {
+    --angle: 0deg !important;
+    --mask-fade: 40px !important;
+    transition: opacity 180ms ease !important;
   }
 }
