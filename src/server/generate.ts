@@ -10,7 +10,10 @@
 
 import type { RetrievedChunk } from "@/lib/types";
 
-export const GROQ_MODEL = "llama-3.1-8b-instant";
+// Groq rotates its model roster (llama-3.1-8b-instant vanished 2026-08-19),
+// so the model is env-tunable. qwen3.6-27b with reasoning disabled measured
+// 144ms TTFT with clean cited answers.
+export const GROQ_MODEL = process.env.GROQ_MODEL ?? "qwen/qwen3.6-27b";
 export const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 const MAX_TOKENS = 200;
@@ -96,6 +99,13 @@ async function generateGroq(
       stream: true,
       temperature: TEMPERATURE,
       max_tokens: MAX_TOKENS,
+      // reasoning models burn TTFT thinking (or leak <think> into content) —
+      // disable it; non-reasoning models ignore the field
+      ...(GROQ_MODEL.startsWith("qwen/")
+        ? { reasoning_effort: "none" as never }
+        : GROQ_MODEL.startsWith("openai/")
+          ? { reasoning_effort: "low" as never }
+          : {}),
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: buildUserPrompt(question, chunks) },
