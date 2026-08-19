@@ -16,6 +16,8 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: NUCLEO_LICENSE_KEY
+        sync: false
       - key: RETRIEVE_STRATEGIES
         value: sentence
       - key: OFF_TOPIC_THRESHOLD
