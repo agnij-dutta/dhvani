@@ -380,6 +380,7 @@ export default function TestPage() {
   const [edgeGlowState, setEdgeGlowState] =
     useState<VoiceAnimationState>("idle");
   const waveBandsRef = useDemoVoiceBands(waveState);
+  const edgeGlowBandsRef = useDemoVoiceBands(edgeGlowState);
   const waveTuning = useDialKit(
     "Voice wave",
     WAVE_DIAL_CONFIG,
@@ -471,7 +472,10 @@ export default function TestPage() {
 
             <div className="mt-7 rounded-[24px] bg-black p-3 sm:p-5">
               <div className="relative min-h-[320px] overflow-hidden rounded-[32px] bg-white">
-                <VoiceEdgeGlow mode={edgeGlowState} />
+                <VoiceEdgeGlow
+                  mode={edgeGlowState}
+                  bandsRef={edgeGlowBandsRef}
+                />
 
                 <div className="relative z-10 flex min-h-[320px] flex-col items-center justify-center px-7 text-center">
                   <p

@@ -1,10 +1,10 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { IconCompassFill18 as CompassIcon } from "nucleo-ui-fill-18/components/IconCompassFill18";
 import { IconLinkBrokenFill18 as LinkBrokenIcon } from "nucleo-ui-fill-18/components/IconLinkBrokenFill18";
 import { IconMicrophoneSlashFill18 as MicrophoneOffIcon } from "nucleo-ui-fill-18/components/IconMicrophoneSlashFill18";
 import { IconShieldAlertFill18 as ShieldAlertIcon } from "nucleo-ui-fill-18/components/IconShieldAlertFill18";
+import { IconTriangleWarningFill18 as TriangleWarningIcon } from "nucleo-ui-fill-18/components/IconTriangleWarningFill18";
 import type { Refusal } from "@/hooks/useAskStream";
 import { cn } from "./cn";
 
@@ -16,7 +16,7 @@ const COPY: Record<
     tag: "off topic",
     title: "That sits outside the index.",
     body: "Dhvani answers only from the MS MARCO-XI passage corpus. Ask something the corpus covers — travel, health, definitions, how-to.",
-    Icon: CompassIcon,
+    Icon: TriangleWarningIcon,
   },
   unsafe_input: {
     tag: "unsafe",
@@ -72,7 +72,7 @@ export function RefusalPanel({
       )}
     >
       <div className="flex items-center gap-2.5">
-        <Icon aria-hidden size={14} className="shrink-0 text-alert" />
+        <Icon aria-hidden size={12} className="shrink-0 text-alert" />
         <span className="tag rounded-full bg-ink-2 px-2.5 py-1 text-alert">
           {copy.tag}
         </span>

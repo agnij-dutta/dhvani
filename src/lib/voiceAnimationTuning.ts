@@ -73,9 +73,9 @@ export const VOICE_ANIMATION_TUNING: VoiceAnimationTuning = {
       wakeSpeed: 0.61,
     },
     response: {
-      attack: 4.8,
-      release: 1.7,
-      lag: 7.5,
+      attack: 14,
+      release: 5.5,
+      lag: 13,
     },
   },
 };

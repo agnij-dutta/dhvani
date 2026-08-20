@@ -119,11 +119,18 @@ export function VoiceWave({
             disabled && mode !== "blocked" && "opacity-60",
           )}
         >
-          {recording ? (
-            <StopIcon aria-hidden size={12} />
-          ) : (
-            <MicrophoneIcon aria-hidden size={18} />
-          )}
+          <span
+            aria-hidden
+            className="t-icon-swap voice-wave-icon-swap leading-none"
+            data-state={recording ? "b" : "a"}
+          >
+            <span className="t-icon" data-icon="a">
+              <MicrophoneIcon size={18} />
+            </span>
+            <span className="t-icon" data-icon="b">
+              <StopIcon size={12} />
+            </span>
+          </span>
         </button>
 
         <p

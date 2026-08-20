@@ -32,9 +32,18 @@ type UniformName = (typeof UNIFORMS)[number];
 
 const IDLE_SETTLE_RATE = 5.2;
 const SETTLE_EPSILON = 0.004;
-const IDLE_DRIFT_SPEED = 0.9;
+const WAVE_REVEAL_DURATION_MS = 260;
+const WAVE_REVEAL_EASING = "cubic-bezier(0.19, 1, 0.22, 1)";
+// The ready state should feel alive without competing with active speech.
+const IDLE_DRIFT_SPEED = 1.5;
 const ACTIVE_DRIFT_SPEED = 2.1;
-const EMPTY_BANDS: VoiceBands = { low: 0, mid: 0, high: 0, level: 0 };
+const EMPTY_BANDS: VoiceBands = {
+  low: 0,
+  mid: 0,
+  high: 0,
+  level: 0,
+  cadence: 0,
+};
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
@@ -53,6 +62,7 @@ export function shouldRenderWave(
 ): boolean {
   if (reducedMotion) return false;
   if (isActiveMode(mode)) return true;
+  if (mode === "idle") return true;
 
   return (
     wake > SETTLE_EPSILON ||
@@ -81,6 +91,14 @@ export function advanceWaveDrift(
   );
 }
 
+/** Maps vocal volume and articulation pace to the wave's internal clock. */
+export function getWavePlaybackSpeed(bands: VoiceBands): number {
+  const activity = clamp01(
+    bands.level * 0.7 + (bands.cadence ?? bands.high * 0.38) * 1.3,
+  );
+  return 0.72 + activity * 1.55;
+}
+
 function thinkingSignal(time: number, tuning: VoiceWaveTuning): VoiceBands {
   const variation = tuning.thinking.variation;
   const intensity = tuning.thinking.intensity;
@@ -102,6 +120,7 @@ function thinkingSignal(time: number, tuning: VoiceWaveTuning): VoiceBands {
     mid: clamp01(mid),
     high: clamp01(high),
     level: clamp01((low + mid + high) / 2.35),
+    cadence: clamp01(0.34 + Math.abs(Math.cos(time * 1.67 + 3.1)) * 0.18),
   };
 }
 
@@ -117,9 +136,11 @@ export class VoiceWaveRenderer {
   private resizeObserver: ResizeObserver | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
   private animationFrame = 0;
+  private revealFrame = 0;
   private lastFrame = 0;
   private running = false;
   private disposed = false;
+  private hasPresented = false;
   private intersecting = true;
   private reducedMotion = false;
   private mode: VoiceWaveMode = "idle";
@@ -136,7 +157,7 @@ export class VoiceWaveRenderer {
     this.canvas = document.createElement("canvas");
     this.canvas.setAttribute("aria-hidden", "true");
     this.canvas.style.cssText =
-      "position:absolute;inset:0;display:block;width:100%;height:100%;pointer-events:none";
+      `position:absolute;inset:0;display:block;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity ${WAVE_REVEAL_DURATION_MS}ms ${WAVE_REVEAL_EASING}`;
     host.appendChild(this.canvas);
 
     const gl = this.canvas.getContext("webgl2", {
@@ -320,6 +341,17 @@ export class VoiceWaveRenderer {
     gl.uniform1f(this.uniforms.uBrightness, this.tuning.brightness);
     gl.uniform1f(this.uniforms.uReflection, this.tuning.reflection);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    this.revealAfterFirstFrame();
+  }
+
+  /** Avoid exposing an incomplete WebGL frame while the shader starts up. */
+  private revealAfterFirstFrame(): void {
+    if (this.hasPresented || this.disposed) return;
+    this.hasPresented = true;
+    this.revealFrame = requestAnimationFrame(() => {
+      this.revealFrame = 0;
+      if (!this.disposed) this.canvas.style.opacity = "1";
+    });
   }
 
   private syncPlayback(): void {
@@ -349,8 +381,6 @@ export class VoiceWaveRenderer {
       if (!this.running) return;
       const delta = Math.min((now - this.lastFrame) / 1000, 1 / 30);
       this.lastFrame = now;
-      this.waveTime += delta * Math.max(0, this.tuning.playbackSpeed);
-
       const active = isActiveMode(this.mode);
       const targetBands =
         this.mode === "thinking"
@@ -358,6 +388,10 @@ export class VoiceWaveRenderer {
           : this.mode === "listening"
             ? this.bandsRef.current
             : EMPTY_BANDS;
+      const playbackSpeed =
+        Math.max(0, this.tuning.playbackSpeed) *
+        (this.mode === "listening" ? getWavePlaybackSpeed(targetBands) : 1);
+      this.waveTime += delta * playbackSpeed;
       const targetWake =
         this.mode === "thinking"
           ? this.tuning.thinking.wakeBase +
@@ -388,7 +422,7 @@ export class VoiceWaveRenderer {
       this.waveDrift = advanceWaveDrift(
         this.waveDrift,
         delta,
-        this.tuning.playbackSpeed,
+        playbackSpeed,
         this.wake,
       );
 
@@ -436,6 +470,7 @@ export class VoiceWaveRenderer {
     this.renderedBands.mid = bands.mid;
     this.renderedBands.high = bands.high;
     this.renderedBands.level = bands.level;
+    this.renderedBands.cadence = bands.cadence ?? 0;
   }
 
   private stop(): void {
@@ -447,6 +482,7 @@ export class VoiceWaveRenderer {
   destroy(): void {
     this.disposed = true;
     this.stop();
+    if (this.revealFrame) cancelAnimationFrame(this.revealFrame);
     this.resizeObserver?.disconnect();
     this.intersectionObserver?.disconnect();
     document.removeEventListener("visibilitychange", this.visibilityHandler);

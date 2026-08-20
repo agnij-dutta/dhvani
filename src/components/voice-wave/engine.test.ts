@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { advanceWaveDrift, shouldRenderWave } from "./engine";
+import {
+  advanceWaveDrift,
+  getWavePlaybackSpeed,
+  shouldRenderWave,
+} from "./engine";
 import { FRAG } from "./shaders";
 
 test("idle keeps rendering while active energy settles", () => {
@@ -16,7 +20,7 @@ test("idle keeps rendering while active energy settles", () => {
   );
 });
 
-test("idle stops rendering once the wave is settled", () => {
+test("idle continues rendering a subtle breathing signal", () => {
   assert.equal(
     shouldRenderWave(
       "idle",
@@ -25,7 +29,7 @@ test("idle stops rendering once the wave is settled", () => {
       0,
       { low: 0, mid: 0, high: 0, level: 0 },
     ),
-    false,
+    true,
   );
 });
 
@@ -62,4 +66,23 @@ test("falling wake energy cannot reverse the spatial clock", () => {
     assert.ok(next > drift);
     drift = next;
   }
+});
+
+test("articulated speech moves the wave clock faster than a steady voice", () => {
+  const measuredPace = getWavePlaybackSpeed({
+    low: 0.4,
+    mid: 0.46,
+    high: 0.3,
+    level: 0.48,
+    cadence: 0.76,
+  });
+  const steadyPace = getWavePlaybackSpeed({
+    low: 0.4,
+    mid: 0.46,
+    high: 0.3,
+    level: 0.48,
+    cadence: 0.08,
+  });
+
+  assert.ok(measuredPace > steadyPace);
 });

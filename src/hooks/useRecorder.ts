@@ -119,13 +119,14 @@ export function useRecorder(): UseRecorder {
         const source = ctx.createMediaStreamSource(stream);
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 1024;
-        analyser.smoothingTimeConstant = 0.86;
+        analyser.smoothingTimeConstant = 0.72;
         source.connect(analyser);
 
         const waveform = new Uint8Array(analyser.fftSize);
         const spectrum = new Uint8Array(analyser.frequencyBinCount);
         const binHz = ctx.sampleRate / analyser.fftSize;
         let lastFrame = performance.now();
+        let previousLevelTarget = 0;
 
         const tick = (now: number) => {
           const delta = Math.min(0.1, Math.max(1 / 240, (now - lastFrame) / 1000));
@@ -152,11 +153,28 @@ export function useRecorder(): UseRecorder {
           const highTarget = liftVoiceEnergy(
             frequencyBand(spectrum, binHz, 1600, 6000),
           );
+          // A fast-changing envelope generally means lively articulation.
+          // It lets the animation follow speech pace, not just loudness.
+          const cadenceTarget = Math.min(
+            1,
+            (Math.abs(levelTarget - previousLevelTarget) /
+              Math.max(delta, 1 / 120)) *
+              0.12 +
+              highTarget * 0.38,
+          );
+          previousLevelTarget = levelTarget;
           const bands = bandsRef.current;
-          bands.low = follow(bands.low, lowTarget, delta, 9, 3.5);
-          bands.mid = follow(bands.mid, midTarget, delta, 10, 4);
-          bands.high = follow(bands.high, highTarget, delta, 11, 4.5);
-          bands.level = follow(bands.level, levelTarget, delta, 8, 3);
+          bands.low = follow(bands.low, lowTarget, delta, 18, 7);
+          bands.mid = follow(bands.mid, midTarget, delta, 20, 8);
+          bands.high = follow(bands.high, highTarget, delta, 22, 9);
+          bands.level = follow(bands.level, levelTarget, delta, 18, 7);
+          bands.cadence = follow(
+            bands.cadence ?? 0,
+            cadenceTarget,
+            delta,
+            24,
+            8,
+          );
           levelRef.current = bands.level;
 
           if (meterRef.current) {

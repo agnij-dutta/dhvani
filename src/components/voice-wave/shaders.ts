@@ -104,7 +104,8 @@ void main(){
   p /= 0.62;
 
   float wake = clamp(uWake, 0.0, 1.0);
-  float idle = 0.030 + 0.016 * sin(uTime * 0.9) * sin(uTime * 0.41 + 1.0);
+  // A slow, fuller breath keeps the resting wave visibly alive without reading as speech.
+  float idle = 0.034 + 0.012 * sin(uTime * 0.36 + 0.7);
   float amp = mix(idle, 0.20 + 0.34 * uLow, wake) * uPresence * uAmplitude;
   float lag = clamp(uWakeLag, 0.0, 1.0);
   float spread = mix(0.55, 2.2 + 1.6 * uHigh + 0.6 * uMid, lag)

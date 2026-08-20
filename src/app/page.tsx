@@ -73,7 +73,7 @@ export default function Home() {
       ? "listening"
       : "idle";
 
-  useVoiceEdgeGlow(voiceEdgeGlowMode);
+  useVoiceEdgeGlow(voiceEdgeGlowMode, recorder.bandsRef);
 
   return (
     <>

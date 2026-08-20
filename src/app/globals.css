@@ -30,6 +30,10 @@
 
 :root {
   color-scheme: light;
+  --icon-swap-dur: 250ms;
+  --icon-swap-blur: 2px;
+  --icon-swap-start-scale: 0.25;
+  --icon-swap-ease: ease-in-out;
 }
 
 html {
@@ -65,6 +69,48 @@ body {
   color: var(--color-ink);
 }
 
+.t-icon-swap {
+  position: relative;
+  display: inline-grid;
+}
+.t-icon-swap .t-icon {
+  grid-area: 1 / 1;
+  transition:
+    opacity   var(--icon-swap-dur) var(--icon-swap-ease),
+    filter    var(--icon-swap-dur) var(--icon-swap-ease),
+    transform var(--icon-swap-dur) var(--icon-swap-ease);
+  will-change: opacity, filter, transform;
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] {
+  opacity: 0;
+  filter: blur(var(--icon-swap-blur));
+  transform: scale(var(--icon-swap-start-scale));
+}
+
+.voice-wave-icon-swap {
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+
+.voice-wave-icon-swap .t-icon {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-icon-swap .t-icon { transition: none !important; }
+}
+
 :focus-visible {
   outline: 2px solid var(--color-paper);
   outline-offset: 3px;
@@ -96,19 +142,17 @@ body {
 .rainbow-inset-shadow-effect {
   position: fixed;
   inset: 20px;
-  z-index: 100000;
+  z-index: 10000;
   display: block;
-  /* width: 100%; */
-  /* height: 100%; */
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  filter: blur(12px);
 
   --angle: 0deg;
-  --mask-fade: 40px;
-  --duration: 6s;
-  --mask-width: 4px;
+  --mask-fade: 100px;
+  --rotation-duration: 6s;
+  --state-transition-duration: 500ms;
+  --mask-width: 2px;
 
   background: conic-gradient(
     from var(--angle),
@@ -121,30 +165,50 @@ body {
     #ff3366
   );
   transition:
-    opacity var(--duration)
-      linear(1 0%, 0.55 20%, 0.65 40%, 0.55 60%, 0.85 80%, 1 100%),
-    --angle var(--duration) linear,
-    --mask-fade var(--duration) ease-out;
+    opacity var(--state-transition-duration)
+      cubic-bezier(0.19, 1, 0.22, 1),
+    --angle var(--rotation-duration) linear,
+    --mask-fade var(--rotation-duration) ease-out;
 
   mask-image:
     linear-gradient(
       to right,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     ),
     linear-gradient(
       to left,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     ),
     linear-gradient(
       to bottom,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     ),
     linear-gradient(
       to top,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     );
   mask-size: 100% 100%;
@@ -153,21 +217,41 @@ body {
     linear-gradient(
       to right,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     ),
     linear-gradient(
       to left,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     ),
     linear-gradient(
       to bottom,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     ),
     linear-gradient(
       to top,
       black var(--mask-width),
+      rgb(0 0 0 / 0.85) calc(var(--mask-width) + 10px),
+      rgb(0 0 0 / 0.62) calc(var(--mask-width) + 25px),
+      rgb(0 0 0 / 0.38) calc(var(--mask-width) + 47px),
+      rgb(0 0 0 / 0.18) calc(var(--mask-width) + 70px),
+      rgb(0 0 0 / 0.05) calc(var(--mask-width) + 88px),
       transparent calc(var(--mask-width) + var(--mask-fade))
     );
   -webkit-mask-size: 100% 100%;
@@ -175,12 +259,11 @@ body {
 }
 
 .rainbow-inset-shadow-effect[data-active="true"] {
-  opacity: 0.5;
+  opacity: 0.28;
   --angle: 720deg;
-  /* --mask-fade: 40px; */
 
-  --mask-fade: 40px;
-  --mask-width: 4px;
+  /* --mask-fade: 500px; */
+  /* --mask-width: 4px; */
 }
 
 .rainbow-inset-shadow-effect[data-mode="thinking"] {
@@ -192,7 +275,7 @@ body {
   .rainbow-inset-shadow-effect[data-active="true"] {
     opacity: 0;
     --angle: 0deg;
-    --mask-fade: 80px;
+    /* --mask-fade: 100px; */
   }
 }
 
